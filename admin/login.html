@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YUN Admin — Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,800;1,800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0a0a0a;
+            font-family: 'Inter', sans-serif;
+        }
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            padding: 48px 40px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            backdrop-filter: blur(20px);
+        }
+        .login-brand {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 800;
+            font-style: italic;
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: white;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        .login-subtitle {
+            text-align: center;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.3);
+            margin-bottom: 36px;
+        }
+        .form-group { margin-bottom: 20px; }
+        .form-label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: white;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+        .form-input:focus { border-color: rgba(255,255,255,0.3); }
+        .form-input::placeholder { color: rgba(255,255,255,0.2); }
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: white;
+            color: #0a0a0a;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 800;
+            font-style: italic;
+            font-size: 0.95rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .btn-login:hover { background: #e8e0d0; transform: translateY(-1px); }
+        .btn-login:active { transform: translateY(0); }
+        .error-msg {
+            display: none;
+            text-align: center;
+            color: #ff3232;
+            font-size: 0.8rem;
+            margin-top: 16px;
+            padding: 10px;
+            background: rgba(255,50,50,0.08);
+            border-radius: 6px;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="login-brand">YUN</div>
+        <div class="login-subtitle">Admin Dashboard</div>
+        <form id="loginForm" onsubmit="return handleLogin(event)">
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" id="username" class="form-input" placeholder="Enter username" required autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" id="password" class="form-input" placeholder="Enter password" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn-login">Sign In</button>
+        </form>
+        <div class="error-msg" id="errorMsg">Invalid username or password</div>
+    </div>
+    <script>
+        function handleLogin(e) {
+            e.preventDefault();
+            var u = document.getElementById('username').value.trim();
+            var p = document.getElementById('password').value;
+            if (u === 'admin' && p === 'Yun@2026') {
+                localStorage.setItem('yun_admin_auth', btoa(u + ':' + p));
+                window.location.href = 'index.html';
+            } else {
+                document.getElementById('errorMsg').style.display = 'block';
+                document.getElementById('password').value = '';
+                document.getElementById('password').focus();
+            }
+            return false;
+        }
+        // Check if already logged in
+        (function() {
+            var auth = localStorage.getItem('yun_admin_auth');
+            if (auth) {
+                try {
+                    var decoded = atob(auth).split(':');
+                    if (decoded[0] === 'admin' && decoded[1] === 'Yun@2026') {
+                        window.location.href = 'index.html';
+                    }
+                } catch(e) {}
+            }
+        })();
+    </script>
+</body>
+</html>

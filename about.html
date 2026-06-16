@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YUN — About Us</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
+    <link rel="preconnect" href="https://rydgzqfqxsjerqkvdmdg.supabase.co" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,800&family=Inter:wght@300;400;500;600&family=Space+Mono&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --bg: #0a0a0a; --text-primary: #ffffff; --text-secondary: rgba(255,255,255,0.55); --accent: #e8e0d0; --button-fill: #ffffff; --button-text: #0a0a0a; --font-body: 'Inter', sans-serif; --font-caption: 'Space Mono', monospace; --radius-sm: 12px; --radius-md: 16px; --transition: 400ms ease; }
+        html { scroll-behavior: smooth; font-family: var(--font-body); background: var(--bg); color: var(--text-primary); overflow-x: hidden; }
+        body { line-height: 1.5; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        img, video { max-width: 100%; display: block; }
+        a { text-decoration: none; color: inherit; }
+        button { border: none; background: none; cursor: pointer; font-family: inherit; outline: inherit; }
+        *:focus-visible { outline: 2px solid rgba(255,255,255,0.5); outline-offset: 3px; }
+
+        /* ===== NAVBAR ===== */
+        .navbar { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 100; width: auto; min-width: unset; max-width: 720px; border-radius: 999px; background: rgba(10,10,10,0.55); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 4px 24px rgba(0,0,0,0.4); padding: 10px 28px; display: flex; align-items: center; justify-content: space-between; gap: 32px; }
+        .navbar-brand { font-size: 1rem; font-weight: 700; color: var(--text-primary); letter-spacing: 0.05em; }
+        .navbar-brand img { display: block; height: 36px; width: auto; object-fit: contain; }
+        .navbar-links { display: flex; align-items: center; gap: 32px; }
+        .navbar-links a { font-size: 0.85rem; color: rgba(255,255,255,0.75); position: relative; transition: color var(--transition); }
+        .navbar-links a:hover { color: var(--text-primary); }
+        .navbar-links a.active { color: var(--text-primary); }
+        .navbar-links a.active::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 100%; height: 1px; background: var(--text-primary); }
+        .navbar-icons { display: flex; align-items: center; gap: 16px; }
+        .navbar-icons button { color: var(--text-primary); display: flex; align-items: center; justify-content: center; transition: opacity var(--transition); }
+        .navbar-icons button:hover { opacity: 0.7; }
+        .hamburger { display: none; }
+        .cart-btn-wrap { position: relative; }
+
+        .mobile-menu-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 200; background: rgba(10,10,10,0.97); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); flex-direction: column; align-items: center; justify-content: center; gap: 32px; }
+        .mobile-menu-overlay.open { display: flex; }
+        .mobile-menu-overlay a { font-size: 1.6rem; font-weight: 300; color: rgba(255,255,255,0.8); transition: color var(--transition); }
+        .mobile-menu-overlay a:hover { color: var(--text-primary); }
+        .mobile-menu-close { position: absolute; top: 16px; right: 20px; color: var(--text-primary); }
+
+        /* ===== HERO ===== */
+        .page-hero {
+            min-height: 60vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 140px clamp(20px, 5vw, 80px) 60px;
+            background: linear-gradient(135deg, #111 0%, #0a0a0a 100%);
+        }
+        .page-hero .eyebrow {
+            font-family: var(--font-caption);
+            font-size: clamp(0.65rem, 1vw, 0.75rem);
+            color: var(--accent);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .page-hero h1 {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 800;
+            font-style: italic;
+            text-transform: uppercase;
+            letter-spacing: 0.01em;
+            font-size: clamp(3rem, 10vw, 7rem);
+            line-height: 0.95;
+            color: var(--text-primary);
+        }
+        .page-hero .subtitle {
+            font-family: var(--font-caption);
+            font-size: clamp(0.6rem, 1vw, 0.75rem);
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-top: 16px;
+        }
+
+        /* ===== ABOUT SECTION ===== */
+        .about-section {
+            padding: clamp(60px, 10vw, 120px) clamp(20px, 5vw, 80px);
+        }
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(40px, 6vw, 80px);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .about-story h2 {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 800;
+            font-style: italic;
+            text-transform: uppercase;
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            margin-bottom: 24px;
+            line-height: 1.1;
+        }
+        .about-story p {
+            color: var(--text-secondary);
+            font-size: clamp(0.9rem, 1.2vw, 1rem);
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+        .about-story .accent-line {
+            width: 60px;
+            height: 2px;
+            background: var(--accent);
+            margin: 32px 0;
+        }
+        .about-story .tagline {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 800;
+            font-style: italic;
+            font-size: clamp(1.2rem, 2vw, 1.5rem);
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        .about-values h3 {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 800;
+            font-style: italic;
+            text-transform: uppercase;
+            font-size: clamp(1.4rem, 3vw, 1.8rem);
+            margin-bottom: 32px;
+        }
+        .value-item {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            padding: 24px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .value-item:last-child { border-bottom: none; }
+        .value-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: var(--accent);
+        }
+        .value-content h4 {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 800;
+            font-style: italic;
+            text-transform: uppercase;
+            font-size: 1.1rem;
+            margin-bottom: 6px;
+        }
+        .value-content p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        /* ===== CONTACT SECTION ===== */
+        .contact-section {
+            padding: clamp(60px, 10vw, 120px) clamp(20px, 5vw, 80px);
+            background: linear-gradient(180deg, var(--bg) 0%, #111 50%, var(--bg) 100%);
+        }
+        .contact-header {
+            text-align: center;
+            margin-bottom: clamp(40px, 6vw, 60px);
+        }
+        .contact-header h2 {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 800;
+            font-style: italic;
+            text-transform: uppercase;
+            font-size: clamp(2rem, 5vw, 3rem);
+            margin-bottom: 8px;
+        }
+        .contact-header p {
+            font-family: var(--font-caption);
+            font-size: 0.75rem;
+            color: var(--accent);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .contact-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius-md);
+            padding: 32px;
+            transition: border-color var(--transition);
+        }
+        .contact-card:hover { border-color: rgba(255,255,255,0.2); }
+        .contact-card-label {
+            font-family: var(--font-caption);
+            font-size: 0.6rem;
+            color: rgba(255,255,255,0.35);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 12px;
+        }
+        .contact-card-value {
+            font-size: 1rem;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        .contact-card-value a {
+            color: var(--text-primary);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            transition: border-color var(--transition);
+        }
+        .contact-card-value a:hover { border-color: var(--text-primary); }
+        .contact-card-full {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 48px 32px;
+        }
+
+        /* ===== CART DRAWER ===== */
+        #cart-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 9998; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease; }
+        #cart-overlay.active { opacity: 1; visibility: visible; }
+        #cart-drawer { position: fixed; top: 0; right: 0; width: 420px; max-width: 100vw; height: 100vh; background: #0f0f0f; border-left: 1px solid rgba(255,255,255,0.08); z-index: 9999; display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.45s cubic-bezier(0.76, 0, 0.24, 1); }
+        #cart-drawer.active { transform: translateX(0%); }
+        .cart-drawer-header { display: flex; align-items: center; justify-content: space-between; padding: 28px 28px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+        .cart-drawer-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-style: italic; font-size: 1.4rem; color: white; text-transform: uppercase; letter-spacing: 0.05em; margin: 0; }
+        .cart-close-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 50%; width: 36px; height: 36px; color: white; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .cart-close-btn:hover { background: rgba(255,255,255,0.12); }
+        .cart-drawer-items { flex: 1; overflow-y: auto; padding: 20px 28px; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent; }
+        .cart-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 12px; padding: 60px 0; }
+        .cart-empty-icon { font-size: 2.5rem; }
+        .cart-empty-text { font-family: 'Inter', sans-serif; color: rgba(255,255,255,0.35); font-size: 0.9rem; }
+        .cart-empty-link { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: white; text-decoration: none; letter-spacing: 0.1em; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 2px; }
+        .drawer-cart-item { display: flex; gap: 14px; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.06); align-items: flex-start; }
+        .drawer-cart-item img { width: 72px; aspect-ratio: 3/4; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
+        .drawer-item-info { flex: 1; }
+        .drawer-item-category { font-family: 'Space Mono', monospace; font-size: 0.55rem; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.12em; }
+        .drawer-item-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-style: italic; font-size: 1rem; color: white; text-transform: uppercase; margin: 3px 0 5px; }
+        .drawer-item-meta { font-family: 'Inter', sans-serif; font-size: 0.72rem; color: rgba(255,255,255,0.35); margin-bottom: 10px; }
+        .drawer-item-qty { display: flex; align-items: center; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; width: fit-content; }
+        .drawer-qty-btn { background: transparent; border: none; color: white; width: 28px; height: 28px; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .drawer-qty-num { width: 28px; text-align: center; color: white; font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600; border-left: 1px solid rgba(255,255,255,0.12); border-right: 1px solid rgba(255,255,255,0.12); line-height: 28px; }
+        .drawer-item-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; }
+        .drawer-item-price { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-style: italic; font-size: 1rem; color: white; }
+        .drawer-remove-btn { background: transparent; border: none; color: rgba(255,255,255,0.25); font-size: 0.8rem; cursor: pointer; transition: color 0.2s; }
+        .drawer-remove-btn:hover { color: white; }
+        .cart-drawer-footer { padding: 20px 28px 32px; border-top: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; background: #0f0f0f; }
+        .cart-summary-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .cart-summary-label { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.1em; }
+        .cart-summary-value { font-family: 'Inter', sans-serif; font-size: 0.85rem; color: rgba(255,255,255,0.6); }
+        .cart-summary-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 14px 0; }
+        .cart-total-row { margin-bottom: 20px; }
+        .cart-total-label { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-style: italic; font-size: 1.1rem; color: white; text-transform: uppercase; }
+        .cart-total-value { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-style: italic; font-size: 1.3rem; color: white; }
+        .btn-drawer-checkout { display: block; width: 100%; padding: 16px; background: white; color: #0a0a0a; text-align: center; text-decoration: none; border-radius: 10px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-style: italic; font-size: 1rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px; transition: background 0.2s; box-sizing: border-box; }
+        .btn-drawer-checkout:hover { background: rgba(255,255,255,0.88); }
+        .btn-drawer-continue { display: block; width: 100%; padding: 12px; background: transparent; border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; color: rgba(255,255,255,0.5); font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: border-color 0.2s, color 0.2s; box-sizing: border-box; }
+        .btn-drawer-continue:hover { border-color: rgba(255,255,255,0.3); color: white; }
+        .cart-count-badge { position: absolute; top: -6px; right: -6px; background: white; color: #0a0a0a; font-size: 0.55rem; font-weight: 700; font-family: 'Inter', sans-serif; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
+        .cart-count-badge.visible { opacity: 1; }
+        @media (max-width: 480px) { #cart-drawer { width: 100vw; } }
+
+        /* ===== PAGE TRANSITION ===== */
+        #page-transition { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0a0a0a; z-index: 99999; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+        .pt-brand { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 300; color: white; letter-spacing: 0.4em; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
+
+        @media (max-width: 768px) {
+            .navbar { width: calc(100% - 40px); max-width: 360px; min-width: unset; padding: 8px 16px; }
+            .navbar-links { display: none; }
+            .navbar-icons button:not(.hamburger) { display: none; }
+            .hamburger { display: flex; }
+            .about-grid { grid-template-columns: 1fr; }
+            .contact-grid { grid-template-columns: 1fr; }
+
+        }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; } }
+        .wepnest-credits { text-align: center; padding: 20px; font-family: 'Space Mono', monospace; font-size: 0.6rem; color: rgba(255,255,255,0.25); letter-spacing: 0.1em; }
+        .wepnest-credits a { color: rgba(255,255,255,0.4); text-decoration: underline; transition: color 0.2s; }
+        .wepnest-credits a:hover { color: white; }
+        .bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; background: rgba(10,10,10,0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.08); padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); }
+        .bottom-nav-inner { display: flex; align-items: center; justify-content: space-around; max-width: 400px; margin: 0 auto; }
+        .bottom-nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; color: rgba(255,255,255,0.5); font-size: 0.6rem; font-family: var(--font-caption); letter-spacing: 0.05em; transition: color 0.2s; text-decoration: none; position: relative; }
+        .bottom-nav-item.active, .bottom-nav-item:hover { color: white; }
+        .bottom-nav-item svg { width: 22px; height: 22px; }
+        .bottom-nav-badge { position: absolute; top: -4px; right: -8px; background: white; color: #0a0a0a; font-size: 0.5rem; font-weight: 700; min-width: 14px; height: 14px; border-radius: 7px; display: none; align-items: center; justify-content: center; font-family: 'Inter',sans-serif; padding: 0 3px; }
+        @media (max-width: 768px) { .bottom-nav { display: block; } }
+    </style>
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1365075765519578');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=1365075765519578&ev=PageView&noscript=1"/></noscript>
+    <!-- End Meta Pixel Code -->
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+    const SUPABASE_URL = 'https://rydgzqfqxsjerqkvdmdg.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_18H-x7wam3OAI--DP3Zq3Q_Lv3Pped4';
+    </script>
+    <script src="i18n.js"></script>
+</head>
+<body>
+
+    <div id="page-transition"><span class="pt-brand">YUN</span></div>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand"><img src="https://res.cloudinary.com/dcj7lqvph/image/upload/q_auto/f_auto/v1781461884/IMG_20260531_223119_1_ebk1xo.png" alt="YUN" style="height:36px;width:auto;object-fit:contain"></a>
+        <div class="navbar-links">
+            <a href="index.html">Home</a>
+            <a href="products.html">Products</a>
+            <a href="about.html" class="active">About</a>
+        </div>
+        <div id="langSwitcher"></div>
+        <div class="navbar-icons">
+            <button class="hamburger" aria-label="Menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        </div>
+    </nav>
+
+    <!-- Mobile menu -->
+    <div class="mobile-menu-overlay" id="mobileMenu">
+        <button class="mobile-menu-close" aria-label="Close menu"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        <a href="index.html">Home</a>
+        <a href="products.html">Products</a>
+        <a href="about.html">About</a>
+    </div>
+
+    <!-- ===== HERO ===== -->
+    <section class="page-hero">
+        <span class="eyebrow">Y2K Fashion Revival // Digital Age</span>
+        <h1>WHO WE ARE</h1>
+        <p class="subtitle">Est. 2024 — Algeria</p>
+    </section>
+
+    <!-- ===== ABOUT SECTION ===== -->
+    <section class="about-section">
+        <div class="about-grid">
+            <div class="about-story">
+                <h2>THE STORY</h2>
+                <p>Born from the static of a broken CRT screen and the glow of early-2000s flip phones, YUN is not just a brand — it's a frequency. We decode the DNA of Y2K fashion and remix it for a generation that never lived through it, but feels it in their bones.</p>
+                <p>Every piece we curate is a bridge between eras — metallic textures meet digital minimalism, cargo pockets hold AirPods, and butterfly clips are worn with the same reckless confidence as they were in 2002. We don't do nostalgia. We do evolution.</p>
+                <p>Founded in Algeria, built for the global grid. YUN exists at the intersection of street culture and cyber aesthetic — where North African energy meets the pixelated dreams of the early internet.</p>
+                <div class="accent-line"></div>
+                <div class="tagline">FASHION IS CODE. WE WRITE IT.</div>
+            </div>
+            <div class="about-values">
+                <h3>OUR VALUES</h3>
+                <div class="value-item">
+                    <div class="value-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                    </div>
+                    <div class="value-content">
+                        <h4>Quality</h4>
+                        <p>Every garment is inspected, tested, and verified. We don't drop anything we wouldn't wear ourselves — from the stitching to the packaging.</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
+                    <div class="value-content">
+                        <h4>Authenticity</h4>
+                        <p>No fast-fashion copies. Each piece is sourced, designed, or curated with intention. What you wear tells a story — make sure it's a real one.</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    </div>
+                    <div class="value-content">
+                        <h4>Digital-First</h4>
+                        <p>Born online, built for the scroll. From our social presence to our checkout flow — everything is designed for the way you actually shop.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CONTACT SECTION ===== -->
+    <section class="contact-section">
+        <div class="contact-header">
+            <h2>GET IN TOUCH</h2>
+            <p>We'd love to hear from you</p>
+        </div>
+        <div class="contact-grid">
+            <a href="https://instagram.com/yun.store.dz" target="_blank" class="contact-card">
+                <div class="contact-card-label">Instagram</div>
+                <div class="contact-card-value">@yun.store.dz</div>
+            </a>
+            <a href="https://wa.me/213XXXXXXXXXX" target="_blank" class="contact-card">
+                <div class="contact-card-label">WhatsApp</div>
+                <div class="contact-card-value">+213 XXX XX XX XX</div>
+            </a>
+            <a href="https://wa.me/213XXXXXXXXXX" target="_blank" class="contact-card">
+                <div class="contact-card-label" data-i18n="footer_tawssil">Tawssil (Zr Express)</div>
+                <div class="contact-card-value">WhatsApp</div>
+            </a>
+            <div class="contact-card">
+                <div class="contact-card-label">Address</div>
+                <div class="contact-card-value">Algeria</div>
+            </div>
+            <div class="contact-card contact-card-full">
+                <div class="contact-card-label">Working Hours</div>
+                <div class="contact-card-value">Sat — Thu, 10:00 AM — 8:00 PM</div>
+            </div>
+        </div>
+    </section>
+
+    <div class="wepnest-credits">
+        Made in <a href="https://instagram.com/wepnest" target="_blank">Wepnest</a> | &copy; 2026 YUN
+    </div>
+
+    <!-- ===== CART DRAWER ===== -->
+    <div id="cart-overlay" onclick="closeCart()"></div>
+    <div id="cart-drawer">
+      <div class="cart-drawer-header">
+        <h2 class="cart-drawer-title">CART</h2>
+        <button class="cart-close-btn" onclick="closeCart()">✕</button>
+      </div>
+      <div class="cart-drawer-items" id="cartItems">
+        <div class="cart-empty" id="cartEmpty">
+          <span class="cart-empty-icon">🛍</span>
+          <p class="cart-empty-text">Your cart is empty</p>
+          <a href="products.html" class="cart-empty-link" onclick="closeCart()">EXPLORE PRODUCTS →</a>
+        </div>
+        <div class="cart-item-row" id="cartItemsList"></div>
+      </div>
+      <div class="cart-drawer-footer">
+        <div class="cart-summary-row">
+          <span class="cart-summary-label">SUBTOTAL</span>
+          <span class="cart-summary-value" id="drawerSubtotal">0 DA</span>
+        </div>
+        <div class="cart-summary-row">
+          <span class="cart-summary-label">SHIPPING</span>
+          <span class="cart-summary-value">Calculated at checkout</span>
+        </div>
+        <div class="cart-summary-divider"></div>
+        <div class="cart-summary-row cart-total-row">
+          <span class="cart-total-label">TOTAL</span>
+          <span class="cart-total-value" id="drawerTotal">0 DA</span>
+        </div>
+        <a href="checkout.html" class="btn-drawer-checkout">PROCEED TO CHECKOUT →</a>
+        <button class="btn-drawer-continue" onclick="closeCart()">← CONTINUE SHOPPING</button>
+      </div>
+    </div>
+
+    <script>
+        // === WISHLIST MODULE ===
+        var WISHLIST_KEY='yun_wishlist';
+        function getWishlist(){return JSON.parse(localStorage.getItem(WISHLIST_KEY)||'[]')}
+        function saveWishlist(w){localStorage.setItem(WISHLIST_KEY,JSON.stringify(w))}
+        function toggleWishlist(id){var w=getWishlist(),i=w.indexOf(id);if(i>-1)w.splice(i,1);else w.push(id);saveWishlist(w);return i===-1}
+        function isInWishlist(id){return getWishlist().indexOf(id)>-1}
+
+        // === CART DRAWER MODULE ===
+        let cart = JSON.parse(localStorage.getItem('yun_cart') || '[]');
+        function saveCart() { localStorage.setItem('yun_cart', JSON.stringify(cart)); updateCartUI(); }
+        function openCart() { document.getElementById('cart-drawer').classList.add('active'); document.getElementById('cart-overlay').classList.add('active'); document.body.style.overflow = 'hidden'; renderCartItems(); }
+        function closeCart() { document.getElementById('cart-drawer').classList.remove('active'); document.getElementById('cart-overlay').classList.remove('active'); document.body.style.overflow = ''; }
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeCart(); });
+        function renderCartItems() {
+          var list = document.getElementById('cartItemsList'), empty = document.getElementById('cartEmpty');
+          if (!list) return;
+          if (cart.length === 0) { list.innerHTML = ''; if (empty) empty.style.display = 'flex'; return; }
+          if (empty) empty.style.display = 'none';
+          list.innerHTML = cart.map(function(item, i) {
+            return '<div class="drawer-cart-item">' +
+              '<img src="' + item.image + '" alt="' + item.name + '">' +
+              '<div class="drawer-item-info">' +
+                '<div class="drawer-item-category">' + (item.category||'') + '</div>' +
+                '<div class="drawer-item-name">' + item.name + '</div>' +
+                '<div class="drawer-item-meta">' + (item.color ? 'Color: ' + item.color : '') + (item.size ? ' / Size: ' + item.size : '') + '</div>' +
+                '<div class="drawer-item-qty">' +
+                  '<button class="drawer-qty-btn" onclick="changeQty(' + i + ',-1)">−</button>' +
+                  '<span class="drawer-qty-num">' + item.qty + '</span>' +
+                  '<button class="drawer-qty-btn" onclick="changeQty(' + i + ',1)">+</button>' +
+                '</div>' +
+              '</div>' +
+              '<div class="drawer-item-right">' +
+                '<button class="drawer-remove-btn" onclick="removeItem(' + i + ')">✕</button>' +
+                '<span class="drawer-item-price">' + (item.oldPrice && item.oldPrice > item.price ? '<span style="text-decoration:line-through;opacity:0.5;margin-right:6px;font-size:0.7rem">' + (item.oldPrice * item.qty).toLocaleString() + ' DA</span>' : '') + (item.price * item.qty).toLocaleString() + ' DA</span>' +
+              '</div>' +
+            '</div>';
+          }).join('');
+          updateCartUI();
+        }
+        function changeQty(index, delta) { cart[index].qty += delta; if (cart[index].qty <= 0) cart.splice(index, 1); saveCart(); renderCartItems(); }
+        function removeItem(index) { cart.splice(index, 1); saveCart(); renderCartItems(); }
+        function updateCartUI() {
+          var total = cart.reduce(function(s, i) { return s + i.price * i.qty; }, 0);
+          var count = cart.reduce(function(s, i) { return s + i.qty; }, 0);
+          var subtotalEl = document.getElementById('drawerSubtotal'), totalEl = document.getElementById('drawerTotal');
+          if (subtotalEl) subtotalEl.textContent = total.toLocaleString() + ' DA';
+          if (totalEl) totalEl.textContent = total.toLocaleString() + ' DA';
+          var badge = document.querySelector('.cart-count-badge');
+          if (badge) { badge.textContent = count; badge.classList.toggle('visible', count > 0); }
+          var bBadge = document.getElementById('bottomCartBadge');
+          if (bBadge) { bBadge.textContent = count; bBadge.style.display = count > 0 ? 'flex' : 'none'; }
+        }
+        function addToCart(item) {
+          var existing = cart.find(function(c) { return c.id === item.id && c.size === item.size && c.color === item.color; });
+          if (existing) { existing.qty += (item.qty || 1); } else { var newItem = JSON.parse(JSON.stringify(item)); newItem.qty = item.qty || 1; cart.push(newItem); }
+          saveCart(); openCart();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var hamburger = document.querySelector('.hamburger');
+            var mobileMenu = document.getElementById('mobileMenu');
+            var closeBtn = document.querySelector('.mobile-menu-close');
+            var mobileLinks = mobileMenu.querySelectorAll('a');
+            function openMenu() { mobileMenu.classList.add('open'); document.body.style.overflow = 'hidden'; }
+            function closeMenu() { mobileMenu.classList.remove('open'); document.body.style.overflow = ''; }
+            hamburger.addEventListener('click', openMenu);
+            closeBtn.addEventListener('click', closeMenu);
+            mobileLinks.forEach(function(l) { l.addEventListener('click', closeMenu); });
+            mobileMenu.addEventListener('click', function(e) { if (e.target === mobileMenu) closeMenu(); });
+
+            YUN_I18N.init();
+            var langContainer = document.getElementById('langSwitcher');
+            if (langContainer) { langContainer.innerHTML = YUN_I18N.createSwitcher(); }
+
+            var cartIcon = document.querySelector('.cart-icon');
+            if (cartIcon) {
+              cartIcon.style.position = 'relative';
+              var badge = document.createElement('span');
+              badge.className = 'cart-count-badge';
+              badge.textContent = '0';
+              cartIcon.appendChild(badge);
+              cartIcon.addEventListener('click', function(e) { e.preventDefault(); openCart(); });
+            }
+
+            updateCartUI();
+        });
+
+        // PAGE TRANSITION
+        (function() {
+          var pt = document.getElementById('page-transition');
+          if (!pt) return;
+          if (sessionStorage.getItem('yun_visited')) {
+            pt.style.transition = 'none';
+            pt.style.transform = 'translateY(0%)';
+            pt.style.display = 'flex';
+            requestAnimationFrame(function() {
+              requestAnimationFrame(function() {
+                pt.style.transition = 'transform 0.7s cubic-bezier(0.76, 0, 0.24, 1)';
+                pt.style.transform = 'translateY(100%)';
+                setTimeout(function() { pt.style.display = 'none'; }, 750);
+              });
+            });
+          } else {
+            pt.style.display = 'none';
+          }
+          document.addEventListener('click', function(e) {
+            var link = e.target.closest('a[href]');
+            if (!link) return;
+            var href = link.getAttribute('href');
+            if (!href || href.startsWith('#') || href.startsWith('http') || href.startsWith('mailto') || href.startsWith('tel') || link.target === '_blank') return;
+            e.preventDefault();
+            pt.style.display = 'flex';
+            pt.style.transition = 'none';
+            pt.style.transform = 'translateY(100%)';
+            requestAnimationFrame(function() {
+              requestAnimationFrame(function() {
+                pt.style.transition = 'transform 0.7s cubic-bezier(0.76, 0, 0.24, 1)';
+                pt.style.transform = 'translateY(0%)';
+                setTimeout(function() { window.location.href = href; }, 750);
+              });
+            });
+          });
+        })();
+    </script>
+<script>fbq('track', 'ViewContent', { content_name: 'About Us', content_type: 'page' });</script>
+<script>
+document.querySelector('.btn-drawer-checkout').addEventListener('click', function(e) {
+  var c = JSON.parse(localStorage.getItem('yun_cart') || '[]');
+  if (c.length && typeof fbq !== 'undefined') {
+    fbq('track', 'InitiateCheckout', {
+      content_ids: c.map(function(i) { return i.id; }),
+      num_items: c.reduce(function(s, i) { return s + i.qty; }, 0),
+      value: c.reduce(function(s, i) { return s + i.price * i.qty; }, 0),
+      currency: 'DZD'
+    });
+  }
+}, true);
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var lang = (localStorage.getItem('yun_lang') || 'en');
+  if (!window.supabase) { console.error('Supabase SDK not loaded'); return; }
+  var sb = window.supabase.createClient(
+    'https://rydgzqfqxsjerqkvdmdg.supabase.co',
+    'sb_publishable_18H-x7wam3OAI--DP3Zq3Q_Lv3Pped4'
+  );
+  
+  sb.from('site_content').select('section, field, value').eq('lang', lang)
+    .then(function(res) {
+      console.log('About content loaded:', res);
+      if (res.error) { console.error('About content error:', res.error); return; }
+      if (!res.data || !res.data.length) { console.log('No about content for lang:', lang); return; }
+      var data = {};
+      res.data.forEach(function(r) {
+        if (!data[r.section]) data[r.section] = {};
+        data[r.section][r.field] = r.value;
+      });
+      
+      if (data.about_hero) {
+        var h1 = document.querySelector('.page-hero h1');
+        var sub = document.querySelector('.page-hero .subtitle');
+        if (h1 && data.about_hero.title) h1.textContent = data.about_hero.title;
+        if (sub && data.about_hero.subtitle) sub.textContent = data.about_hero.subtitle;
+      }
+      
+      if (data.about_story) {
+        var storyHeading = document.querySelector('.about-story h2');
+        var paras = document.querySelectorAll('.about-story p');
+        var tagline = document.querySelector('.about-story .tagline');
+        if (storyHeading && data.about_story.heading) storyHeading.textContent = data.about_story.heading;
+        if (paras[0] && data.about_story.paragraph1) paras[0].textContent = data.about_story.paragraph1;
+        if (paras[1] && data.about_story.paragraph2) paras[1].textContent = data.about_story.paragraph2;
+        if (tagline && data.about_story.tagline) tagline.textContent = data.about_story.tagline;
+      }
+      
+      if (data.about_values) {
+        var valueItems = document.querySelectorAll('.value-item');
+        var valueMap = [
+          ['v1_title', 'v1_desc'],
+          ['v2_title', 'v2_desc'],
+          ['v3_title', 'v3_desc']
+        ];
+        valueItems.forEach(function(item, i) {
+          if (valueMap[i]) {
+            var title = item.querySelector('.value-content h4') || item.querySelector('h4');
+            var desc = item.querySelector('.value-content p') || item.querySelector('p');
+            if (title && data.about_values[valueMap[i][0]]) title.textContent = data.about_values[valueMap[i][0]];
+            if (desc && data.about_values[valueMap[i][1]]) desc.textContent = data.about_values[valueMap[i][1]];
+          }
+        });
+      }
+      
+      if (data.about_contact) {
+        var contactCards = document.querySelectorAll('.contact-card');
+        contactCards.forEach(function(card) {
+          var label = card.querySelector('.contact-card-label');
+          var value = card.querySelector('.contact-card-value');
+          if (!label || !value) return;
+          var labelText = label.textContent.toLowerCase();
+          if (labelText.includes('phone') || labelText.includes('whatsapp') || labelText.includes('هاتف')) {
+            if (data.about_contact.phone) value.textContent = data.about_contact.phone;
+          } else if (labelText.includes('email')) {
+            if (data.about_contact.email) value.textContent = data.about_contact.email;
+          } else if (labelText.includes('instagram')) {
+            if (data.about_contact.instagram) value.textContent = data.about_contact.instagram;
+          } else if (labelText.includes('address') || labelText.includes('adresse')) {
+            if (data.about_contact.address) value.textContent = data.about_contact.address;
+          } else if (labelText.includes('hour') || labelText.includes('heure') || labelText.includes('ساعات')) {
+            if (data.about_contact.hours) value.textContent = data.about_contact.hours;
+          }
+        });
+        
+        if (data.about_contact.phone) {
+          var phoneLink = document.querySelector('a[href^="https://wa.me/"]');
+          if (phoneLink) phoneLink.href = 'https://wa.me/' + data.about_contact.phone.replace(/[^0-9]/g, '');
+        }
+        if (data.about_contact.email) {
+          var emailLink = document.querySelector('a[href^="mailto:"]');
+          if (emailLink) emailLink.href = 'mailto:' + data.about_contact.email;
+        }
+        if (data.about_contact.instagram) {
+          var igLink = document.querySelector('a[href*="instagram.com"]');
+          if (igLink) {
+            var igHandle = data.about_contact.instagram.replace('@', '');
+            igLink.href = 'https://instagram.com/' + igHandle;
+          }
+        }
+      }
+    })
+    .catch(function(err) { console.error('Content load failed:', err); });
+});
+</script>
+    <nav class="bottom-nav">
+        <div class="bottom-nav-inner">
+            <a href="index.html" class="bottom-nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <span>HOME</span>
+            </a>
+            <a href="products.html" class="bottom-nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                <span>PRODUCTS</span>
+            </a>
+            <button class="bottom-nav-item cart-icon-bottom" onclick="openCart()" style="position:relative">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                <span>CART</span>
+                <span class="bottom-nav-badge" id="bottomCartBadge">0</span>
+            </button>
+        </div>
+    </nav>
+</body>
+</html>
