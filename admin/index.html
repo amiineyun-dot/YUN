@@ -612,20 +612,12 @@ function fixInlineColors(theme) {
 </script>
 
 <script>
-// Admin security: disable right-click, disable Ctrl+U/I/S, detect devtools
+// Admin security: disable right-click, disable Ctrl+U/I/S
 document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 document.addEventListener('keydown', function(e) {
     if (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S' || e.key === 'i' || e.key === 'I' || e.key === 'j' || e.key === 'J')) { e.preventDefault(); }
     if (e.key === 'F12') { e.preventDefault(); }
 });
-var _0xdevtools = false;
-setInterval(function() {
-    var w = window.outerWidth - window.innerWidth;
-    var h = window.outerHeight - window.innerHeight;
-    if (w > 160 || h > 160) {
-        if (!_0xdevtools) { _0xdevtools = true; document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0a0a0a;color:white;font-family:Inter;font-size:1rem">DevTools detected. Access denied.</div>'; }
-    }
-}, 1000);
 
 const ADMIN_USER = 'admin';
 const ADMIN_PASS = 'Yun@2026';
@@ -1081,7 +1073,7 @@ const ADMIN_PASS = 'Yun@2026';
 const SUPABASE_URL = 'https://rydgzqfqxsjerqkvdmdg.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_18H-x7wam3OAI--DP3Zq3Q_Lv3Pped4';
 const yunDb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
-if (!yunDb) { document.body.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:#0a0a0a;gap:16px"><p style="color:rgba(255,255,255,0.6);font-family:Inter;font-size:1rem">Failed to connect to database</p><p style="color:rgba(255,255,255,0.3);font-family:Space Mono;font-size:0.7rem">Check your internet connection and reload</p></div>'; throw new Error('Supabase not loaded'); }
+if (!yunDb) { console.error('Supabase not loaded'); }
 
 // ===================== TOAST =====================
 function showToast(msg) {
