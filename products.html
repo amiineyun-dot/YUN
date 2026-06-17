@@ -552,6 +552,7 @@ yunDb.from('categories').select('*').eq('is_active', true).order('name').then(fu
 }).catch(function() {});
 </script>
 <script>
+function escapeHtml(s) { if (!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 document.addEventListener('DOMContentLoaded', async function() {
     var grid = document.getElementById('productsGrid');
     if (!grid) return;
@@ -577,15 +578,15 @@ document.addEventListener('DOMContentLoaded', async function() {
             } else {
                 priceHTML = '<span class="price-current">' + new Intl.NumberFormat('en-DZ').format(base) + ' DA</span>';
             }
-            return '<a href="product.html?slug=' + encodeURIComponent(p.slug) + '" class="product-card" data-category="' + (p.category || '') + '" data-product-id="' + p.slug + '">' +
+            return '<a href="product.html?slug=' + encodeURIComponent(p.slug) + '" class="product-card" data-category="' + escapeHtml(p.category || '') + '" data-product-id="' + escapeHtml(p.slug) + '">' +
                 '<div class="product-img-wrap">' +
-                    '<img src="' + optImg(img, 400) + '" alt="' + (p.name || '').toUpperCase() + '" loading="lazy" decoding="async" width="400" height="533">' +
+                    '<img src="' + escapeHtml(optImg(img, 400)) + '" alt="' + escapeHtml((p.name || '').toUpperCase()) + '" loading="lazy" decoding="async" width="400" height="533">' +
                     
                     '<div class="card-hover-overlay"><button class="quick-view-btn">QUICK VIEW</button></div>' +
                 '</div>' +
                 '<div class="product-info">' +
-                    '<span class="product-category">' + catName + '</span>' +
-                    '<h3 class="product-name">' + (p.name || '').toUpperCase() + '</h3>' +
+                    '<span class="product-category">' + escapeHtml(catName) + '</span>' +
+                    '<h3 class="product-name">' + escapeHtml((p.name || '').toUpperCase()) + '</h3>' +
                     '<div class="product-price">' + priceHTML + '</div>' +
                 '</div>' +
             '</a>';
@@ -639,5 +640,6 @@ document.addEventListener('DOMContentLoaded', async function() {
             </button>
         </div>
     </nav>
+    <script src="wepnest-protect.js"></script>
 </body>
 </html>

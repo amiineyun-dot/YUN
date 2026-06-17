@@ -215,7 +215,7 @@
 
         .hero-bottom-content {
             position: absolute;
-            bottom: 40px;
+            bottom: 100px;
             left: 0;
             right: 0;
             z-index: 3;
@@ -1171,6 +1171,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
+function escapeHtml(s) { if (!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 document.addEventListener('DOMContentLoaded', function() {
   if (!window.supabase) { console.error('Supabase SDK not loaded'); return; }
   var c = window.supabase.createClient('https://rydgzqfqxsjerqkvdmdg.supabase.co', 'sb_publishable_18H-x7wam3OAI--DP3Zq3Q_Lv3Pped4');
@@ -1224,5 +1225,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }).catch(function(e) { console.error('Homepage content error:', e); });
 });
 </script>
+    <script src="wepnest-protect.js"></script>
 </body>
 </html>

@@ -1,13 +1,18 @@
 exports.handler = async function(event) {
     var ZR_BASE = 'https://api.zrexpress.app/api/v1';
+    var ALLOWED = ['/users/profile', '/orders', '/orders/create', '/shipping/calculate', '/shipping/wilayas'];
     var headers = {
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': 'https://sweet-brioche-a912f4.netlify.app',
         'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
+        'Access-Control-Allow-Methods': 'POST, OPTIONS'
     };
 
     if (event.httpMethod === 'OPTIONS') {
         return { statusCode: 204, headers, body: '' };
+    }
+
+    if (event.httpMethod !== 'POST') {
+        return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
     }
 
     try {
@@ -20,6 +25,11 @@ exports.handler = async function(event) {
 
         if (!apiKey || !tenantId) {
             return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing apiKey or tenantId' }) };
+        }
+
+        var isAllowed = ALLOWED.some(function(p) { return path === p || path.startsWith(p + '/'); });
+        if (!isAllowed) {
+            return { statusCode: 403, headers, body: JSON.stringify({ error: 'Path not allowed' }) };
         }
 
         var fetchOpts = {
@@ -45,6 +55,6 @@ exports.handler = async function(event) {
             body: data
         };
     } catch (e) {
-        return { statusCode: 500, headers, body: JSON.stringify({ error: e.message }) };
+        return { statusCode: 500, headers, body: JSON.stringify({ error: 'Server error' }) };
     }
 };

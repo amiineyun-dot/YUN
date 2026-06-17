@@ -612,22 +612,37 @@ function fixInlineColors(theme) {
 </script>
 
 <script>
+// Admin security: disable right-click, disable Ctrl+U/I/S, detect devtools
+document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S' || e.key === 'i' || e.key === 'I' || e.key === 'j' || e.key === 'J')) { e.preventDefault(); }
+    if (e.key === 'F12') { e.preventDefault(); }
+});
+var _0xdevtools = false;
+setInterval(function() {
+    var w = window.outerWidth - window.innerWidth;
+    var h = window.outerHeight - window.innerHeight;
+    if (w > 160 || h > 160) {
+        if (!_0xdevtools) { _0xdevtools = true; document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0a0a0a;color:white;font-family:Inter;font-size:1rem">DevTools detected. Access denied.</div>'; }
+    }
+}, 1000);
+
 const ADMIN_USER = 'admin';
 const ADMIN_PASS = 'Yun@2026';
 (function checkAuth() {
     var auth = localStorage.getItem('yun_admin_auth');
-    if (!auth) { window.location.href = 'login.html'; throw new Error('Not authenticated'); }
+    if (!auth) { window.location.href = 'login.html'; return; }
     try {
         var decoded = atob(auth).split(':');
         if (decoded[0] !== ADMIN_USER || decoded[1] !== ADMIN_PASS) {
             localStorage.removeItem('yun_admin_auth');
             window.location.href = 'login.html';
-            throw new Error('Invalid auth');
+            return;
         }
     } catch(e) {
         localStorage.removeItem('yun_admin_auth');
         window.location.href = 'login.html';
-        throw new Error('Invalid auth');
+        return;
     }
 })();
 </script>

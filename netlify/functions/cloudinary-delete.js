@@ -1,6 +1,6 @@
 exports.handler = async function(event) {
     var headers = {
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': 'https://sweet-brioche-a912f4.netlify.app',
         'Access-Control-Allow-Headers': 'Content-Type',
         'Access-Control-Allow-Methods': 'POST, OPTIONS'
     };
@@ -18,9 +18,9 @@ exports.handler = async function(event) {
             return { statusCode: 400, headers, body: JSON.stringify({ error: 'No public_ids provided' }) };
         }
 
-        var cloudName = 'dcj7lqvph';
-        var apiKey = '921952292183516';
-        var apiSecret = 'KvIBlQmme4C4S-deeYj5B9O8wWY';
+        var cloudName = process.env.CLOUDINARY_CLOUD_NAME || 'dcj7lqvph';
+        var apiKey = process.env.CLOUDINARY_API_KEY || '921952292183516';
+        var apiSecret = process.env.CLOUDINARY_API_SECRET || 'KvIBlQmme4C4S-deeYj5B9O8wWY';
 
         var auth = 'Basic ' + Buffer.from(apiKey + ':' + apiSecret).toString('base64');
 

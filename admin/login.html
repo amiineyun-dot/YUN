@@ -116,6 +116,12 @@
         <div class="error-msg" id="errorMsg">Invalid username or password</div>
     </div>
     <script>
+        // Security: disable right-click, disable dev tools shortcuts
+        document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S' || e.key === 'i' || e.key === 'I')) { e.preventDefault(); }
+            if (e.key === 'F12') { e.preventDefault(); }
+        });
         function handleLogin(e) {
             e.preventDefault();
             var u = document.getElementById('username').value.trim();
