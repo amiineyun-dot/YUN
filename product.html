@@ -94,8 +94,9 @@
         .color-selector { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
         .color-selector-label { font-family: var(--font-caption); font-size: 0.65rem; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.08em; }
         .color-options { display: flex; gap: 10px; }
-        .color-swatch { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: outline 0.2s; }
+        .color-swatch { min-width: 30px; height: 30px; border-radius: 6px; cursor: pointer; border: 2px solid transparent; transition: outline 0.2s; display: inline-flex; align-items: center; justify-content: center; padding: 0 10px; }
         .color-swatch.selected { outline: 2px solid white; outline-offset: 3px; }
+        .color-swatch-label { font-family: var(--font-caption); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-primary); }
         .size-btn { min-width: 52px; height: 44px; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; color: var(--text-primary); font-family: var(--font-body); font-weight: 500; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; padding: 0 14px; }
         .size-btn:hover { border-color: var(--text-primary); }
         .size-btn.selected { background: white; color: #0a0a0a; border-color: white; }
@@ -586,8 +587,8 @@
             colors.forEach(function(c,i){
                 var s=document.createElement('span');
                 s.className='color-swatch'+(i===0?' selected':'');
-                s.style.background=c;
                 s.setAttribute('data-color',c);
+                s.innerHTML='<span class="color-swatch-label">'+c+'</span>';
                 colorOpts.appendChild(s);
             });
         }

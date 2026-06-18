@@ -221,19 +221,10 @@
         .color-row input[type="color"] { width: 36px; height: 36px; border: none; border-radius: 4px; cursor: pointer; padding: 0; background: none; }
         .color-row .remove-color { color: #ff3232; font-size: 0.8rem; cursor: pointer; }
 
-        .cp-wrap { position: relative; }
-        .cp-swatch { width: 42px; height: 42px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.2); cursor: pointer; transition: border-color 0.2s; }
-        .cp-swatch:hover { border-color: rgba(255,255,255,0.5); }
-        .cp-dropdown { display: none; position: absolute; top: 50px; left: 0; z-index: 9999; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 14px; width: 260px; box-shadow: 0 12px 40px rgba(0,0,0,0.6); }
-        .cp-dropdown.open { display: block; }
-        .cp-spectrum { position: relative; width: 100%; height: 180px; border-radius: 8px; cursor: crosshair; margin-bottom: 12px; overflow: hidden; }
-        .cp-spectrum canvas { width: 100%; height: 100%; display: block; border-radius: 8px; }
-        .cp-spectrum-cursor { position: absolute; width: 14px; height: 14px; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 0 3px rgba(0,0,0,0.5); pointer-events: none; transform: translate(-50%,-50%); }
-        .cp-hue { position: relative; width: 100%; height: 18px; border-radius: 9px; cursor: pointer; background: linear-gradient(to right,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00); margin-bottom: 12px; }
-        .cp-hue-thumb { position: absolute; top: 50%; width: 10px; height: 20px; border: 2px solid #fff; border-radius: 4px; box-shadow: 0 0 3px rgba(0,0,0,0.5); pointer-events: none; transform: translate(-50%,-50%); }
-        .cp-bottom { display: flex; align-items: center; gap: 8px; }
-        .cp-preview { width: 32px; height: 32px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); flex-shrink: 0; }
-        .cp-hex { flex: 1; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 6px 10px; color: white; font-size: 0.82rem; font-family: 'Space Mono', monospace; }
+        .variant-row input { color: white; }
+        .variant-row input::placeholder { color: rgba(255,255,255,0.35); }
+        [data-theme="light"] .variant-row input { color: #0a0a0a; }
+        [data-theme="light"] .variant-row input::placeholder { color: rgba(0,0,0,0.35); }
 
         .checkbox-grid { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
         .checkbox-grid label { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: rgba(255,255,255,0.7); cursor: pointer; }
@@ -422,9 +413,6 @@
             border-color: rgba(0,0,0,0.1) !important;
             color: #0a0a0a !important;
         }
-        [data-theme="light"] .cp-dropdown { background: #f5f5f5; border-color: rgba(0,0,0,0.12); }
-        [data-theme="light"] .cp-hex { background: #ffffff; border-color: rgba(0,0,0,0.1); color: #0a0a0a; }
-        [data-theme="light"] .cp-swatch { border-color: rgba(0,0,0,0.15); }
 
         /* ===== ORDER MODAL ===== */
         .order-modal-overlay {
@@ -841,14 +829,14 @@ const ADMIN_PASS = 'Yun@2026';
                     <p style="font-size:0.78rem;color:rgba(255,255,255,0.35);margin-bottom:16px">Add each size/color/option as a separate row. Leave price empty to use base price.</p>
                     <div id="variantRows">
                         <div class="variant-row" style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
-                            <div class="cp-wrap"><div class="cp-swatch" style="background:#000000" onclick="openColorPicker(this)"></div><div class="cp-dropdown"></div><input type="hidden" class="cp-hex-input" value="#000000"></div>
+                            <input type="text" placeholder="Color" class="variant-color-input" style="flex:0.8;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px 14px;font-size:0.85rem">
                             <input type="text" placeholder="Size" style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px 14px;font-size:0.85rem">
                             <input type="number" placeholder="Price (DA)" style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px 14px;font-size:0.85rem">
                             <input type="number" placeholder="Stock" style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px 14px;font-size:0.85rem">
                             <button type="button" style="color:#ff3232;font-size:1rem;padding:6px" onclick="this.closest('.variant-row').remove()">✕</button>
                         </div>
                         <div class="variant-row" style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
-                            <div class="cp-wrap"><div class="cp-swatch" style="background:#ffffff" onclick="openColorPicker(this)"></div><div class="cp-dropdown"></div><input type="hidden" class="cp-hex-input" value="#ffffff"></div>
+                            <input type="text" placeholder="Color" class="variant-color-input" style="flex:0.8;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px 14px;font-size:0.85rem">
                             <input type="text" placeholder="Size" style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px 14px;font-size:0.85rem">
                             <input type="number" placeholder="Price (DA)" style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px 14px;font-size:0.85rem">
                             <input type="number" placeholder="Stock" style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px 14px;font-size:0.85rem">
@@ -1496,12 +1484,13 @@ async function editProduct(id) {
     rows.innerHTML = '';
     var hasColorVariants = false;
     (vars || []).forEach(function(v) {
-        if ((v.color && v.color !== 'default') || v.color_hex) hasColorVariants = true;
-        var colorHex = (v.color && v.color !== 'default') ? (v.color_hex || v.color) : '#000000';
+        if ((v.color && v.color !== 'default')) hasColorVariants = true;
+        var colorName = (v.color && v.color !== 'default') ? v.color : '';
         var div = document.createElement('div');
         div.className = 'variant-row';
         div.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;align-items:center';
-        div.innerHTML = '<div class="cp-wrap"><div class="cp-swatch" style="background:' + colorHex + '" onclick="openColorPicker(this)"></div><div class="cp-dropdown"></div><input type="hidden" class="cp-hex-input" value="' + colorHex + '"></div> <input type="text" placeholder="Size" value="' + (v.size || '') + '" style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px 14px;font-size:0.85rem"> <input type="number" placeholder="Price (DA)" value="' + (v.price || '') + '" style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px 14px;font-size:0.85rem"> <input type="number" placeholder="Stock" value="' + (v.stock || 0) + '" style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px 14px;font-size:0.85rem"> <button type="button" style="color:#ff3232;font-size:1rem;padding:6px" onclick="this.closest(\'.variant-row\').remove()">✕</button>';
+        var colorStyle = 'flex:0.8;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px 14px;font-size:0.85rem';
+        div.innerHTML = '<input type="text" placeholder="Color" class="variant-color-input" value="' + colorName + '" style="' + colorStyle + '"> <input type="text" placeholder="Size" value="' + (v.size || '') + '" style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px 14px;font-size:0.85rem"> <input type="number" placeholder="Price (DA)" value="' + (v.price || '') + '" style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px 14px;font-size:0.85rem"> <input type="number" placeholder="Stock" value="' + (v.stock || 0) + '" style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px 14px;font-size:0.85rem"> <button type="button" style="color:#ff3232;font-size:1rem;padding:6px" onclick="this.closest(\'.variant-row\').remove()">✕</button>';
         rows.appendChild(div);
     });
     var hasColorToggle = document.getElementById('hasColorToggle');
@@ -1601,116 +1590,18 @@ function autoSlug() {
     document.getElementById('fpSlug').value = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
-// === CUSTOM COLOR PICKER (Photoshop-style) ===
-var _cpActive = null;
-function openColorPicker(swatch) {
-    var wrap = swatch.closest('.cp-wrap');
-    var dd = wrap.querySelector('.cp-dropdown');
-    var hexInput = wrap.querySelector('.cp-hex-input');
-    var isOpen = dd.classList.contains('open');
-    document.querySelectorAll('.cp-dropdown.open').forEach(function(d){ d.classList.remove('open'); });
-    if (isOpen) { _cpActive = null; return; }
-    _cpActive = { wrap: wrap, dd: dd, swatch: swatch, hexInput: hexInput };
-    if (!dd.querySelector('canvas')) dd.innerHTML = '<div class="cp-spectrum"><canvas id="cpSpecCanvas"></canvas><div class="cp-spectrum-cursor" id="cpSpecCursor"></div></div><div class="cp-hue" id="cpHue"><div class="cp-hue-thumb" id="cpHueThumb"></div></div><div class="cp-bottom"><div class="cp-preview" id="cpPreview"></div><input class="cp-hex" id="cpHexInput" type="text" maxlength="7" placeholder="#000000"></div>';
-    dd.classList.add('open');
-    var canvas = document.getElementById('cpSpecCanvas');
-    var ctx = canvas.getContext('2d');
-    var cw = canvas.parentElement.offsetWidth, ch = canvas.parentElement.offsetHeight;
-    canvas.width = cw; canvas.height = ch;
-    var hue = 0, sat = 1, brt = 1;
-    function drawSpectrum() {
-        var gradH = ctx.createLinearGradient(0,0,cw,0);
-        for (var i = 0; i <= 10; i++) { var h = (hue + i * 36) % 360; gradH.addColorStop(i/10, 'hsl('+h+',100%,50%)'); }
-        ctx.fillStyle = gradH; ctx.fillRect(0,0,cw,ch);
-        var gradV = ctx.createLinearGradient(0,0,0,ch);
-        gradV.addColorStop(0, 'rgba(255,255,255,1)'); gradV.addColorStop(1, 'rgba(255,255,255,0)');
-        ctx.fillStyle = gradV; ctx.fillRect(0,0,cw,ch);
-        var gradB = ctx.createLinearGradient(0,0,0,ch);
-        gradB.addColorStop(0, 'rgba(0,0,0,0)'); gradB.addColorStop(1, 'rgba(0,0,0,1)');
-        ctx.fillStyle = gradB; ctx.fillRect(0,0,cw,ch);
-    }
-    function hslToHex(h,s,l) {
-        s /= 100; l /= 100;
-        var c = (1-Math.abs(2*l-1))*s, x = c*(1-Math.abs((h/60)%2-1)), m = l-c/2, r=0,g=0,b=0;
-        if (h<60){r=c;g=x;}else if(h<120){r=x;g=c;}else if(h<180){g=c;b=x;}else if(h<240){g=x;b=c;}else if(h<300){r=x;b=c;}else{r=c;b=x;}
-        r=Math.round((r+m)*255);g=Math.round((g+m)*255);b=Math.round((b+m)*255);
-        return '#'+[r,g,b].map(function(v){return v.toString(16).padStart(2,'0')}).join('');
-    }
-    function hsbToHex(h,s,b) {
-        var l = (2 - s) * b / 2, sl = l===0?0:s*b/(l<0.5?l:2-l);
-        return hslToHex(h, sl*100, l*100);
-    }
-    function updateFromHSB() {
-        var hex = hsbToHex(hue, sat, brt);
-        swatch.style.background = hex; hexInput.value = hex;
-        var preview = document.getElementById('cpPreview'); if(preview) preview.style.background = hex;
-        var hexIn = document.getElementById('cpHexInput'); if(hexIn) hexIn.value = hex;
-    }
-    var specEl = document.getElementById('cpSpecCanvas');
-    var specCursor = document.getElementById('cpSpecCursor');
-    function specPos(e) {
-        var r = specEl.getBoundingClientRect();
-        var cx = Math.max(0, Math.min(e.clientX - r.left, r.width));
-        var cy = Math.max(0, Math.min(e.clientY - r.top, r.height));
-        sat = cx / r.width; brt = 1 - cy / r.height;
-        specCursor.style.left = cx + 'px'; specCursor.style.top = cy + 'px';
-        updateFromHSB();
-    }
-    drawSpectrum(); updateFromHSB();
-    var curHue = hue;
-    specCursor.style.left = (sat * cw) + 'px'; specCursor.style.top = ((1-brt) * ch) + 'px';
-    var hueThumb = document.getElementById('cpHueThumb');
-    hueThumb.style.left = (hue/360*100) + '%';
-    var dragging = false;
-    specEl.parentElement.addEventListener('mousedown', function(e){ dragging = true; specPos(e); });
-    specEl.parentElement.addEventListener('touchstart', function(e){ dragging = true; specPos(e.touches[0]); e.preventDefault(); }, {passive:false});
-    document.addEventListener('mousemove', function(e){ if(dragging) specPos(e); });
-    document.addEventListener('touchmove', function(e){ if(dragging) specPos(e.touches[0]); }, {passive:false});
-    document.addEventListener('mouseup', function(){ dragging = false; });
-    document.addEventListener('touchend', function(){ dragging = false; });
-    var hueEl = document.getElementById('cpHue');
-    function huePos(e) {
-        var r = hueEl.getBoundingClientRect();
-        hue = Math.max(0, Math.min((e.clientX - r.left) / r.width, 1)) * 360;
-        hueThumb.style.left = (hue/360*100) + '%';
-        drawSpectrum(); updateFromHSB();
-    }
-    var hueDrag = false;
-    hueEl.addEventListener('mousedown', function(e){ hueDrag = true; huePos(e); });
-    hueEl.addEventListener('touchstart', function(e){ hueDrag = true; huePos(e.touches[0]); e.preventDefault(); }, {passive:false});
-    document.addEventListener('mousemove', function(e){ if(hueDrag) huePos(e); });
-    document.addEventListener('touchmove', function(e){ if(hueDrag) huePos(e.touches[0]); }, {passive:false});
-    document.addEventListener('mouseup', function(){ hueDrag = false; });
-    document.addEventListener('touchend', function(){ hueDrag = false; });
-    var hexIn = document.getElementById('cpHexInput');
-    hexIn.addEventListener('change', function(){
-        var v = hexIn.value.trim();
-        if (/^#[0-9a-fA-F]{6}$/.test(v)) { swatch.style.background = v; hexInput.value = v; document.getElementById('cpPreview').style.background = v; }
-    });
-    document.addEventListener('mousedown', function cpClose(ev) {
-        if (!wrap.contains(ev.target)) { dd.classList.remove('open'); document.removeEventListener('mousedown', cpClose); _cpActive = null; }
-    });
-}
-// === END COLOR PICKER ===
-
 function toggleColorColumn() {
     var hasColor = document.getElementById('hasColorToggle').checked;
-    document.querySelectorAll('#variantRows .cp-wrap').forEach(function(el) {
-        el.closest('.variant-row').querySelector('.cp-wrap').style.display = hasColor ? '' : 'none';
+    document.querySelectorAll('#variantRows .variant-row').forEach(function(row) {
+        var colorInput = row.querySelector('.variant-color-input');
+        if (colorInput) colorInput.style.display = hasColor ? '' : 'none';
+        if (!hasColor && colorInput) colorInput.value = '';
     });
-    if (!hasColor) {
-        document.querySelectorAll('#variantRows .variant-row').forEach(function(row) {
-            var hexInput = row.querySelector('.cp-hex-input');
-            if (hexInput) hexInput.value = '';
-            var swatch = row.querySelector('.cp-swatch');
-            if (swatch) swatch.style.background = 'transparent';
-        });
-    }
 }
 
 function addVariantRow() {
     var hasColor = document.getElementById('hasColorToggle') ? document.getElementById('hasColorToggle').checked : true;
-    var colorHtml = '<div class="cp-wrap"' + (hasColor ? '' : ' style="display:none"') + '><div class="cp-swatch" style="background:#000000" onclick="openColorPicker(this)"></div><div class="cp-dropdown"></div><input type="hidden" class="cp-hex-input" value="#000000"></div>';
+    var colorHtml = '<input type="text" placeholder="Color" class="variant-color-input" style="flex:0.8;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px 14px;font-size:0.85rem' + (hasColor ? '' : ';display:none') + '">';
     var div = document.createElement('div');
     div.className = 'variant-row';
     div.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;align-items:center';
@@ -1824,30 +1715,23 @@ async function saveProduct(e) {
         var hasColor = document.getElementById('hasColorToggle') ? document.getElementById('hasColorToggle').checked : true;
         for (var j = 0; j < variantRows.length; j++) {
             var row = variantRows[j];
-            var allInputs = row.querySelectorAll('input');
-            var hexInput = row.querySelector('.cp-hex-input');
-            var vColorHex = hexInput ? hexInput.value : null;
-
-            var sizeVal = '', priceVal = '', stockVal = 0;
-            var visibleInputs = [];
-            for (var k = 0; k < allInputs.length; k++) {
-                if (allInputs[k].type === 'hidden' || allInputs[k].classList.contains('cp-hex-input')) continue;
-                visibleInputs.push(allInputs[k]);
-            }
-            sizeVal = (visibleInputs[0] || {}).value || '';
-            priceVal = (visibleInputs[1] || {}).value || '';
-            stockVal = (visibleInputs[2] || {}).value || 0;
+            var colorInput = row.querySelector('.variant-color-input');
+            var inputs = row.querySelectorAll('input:not(.variant-color-input)');
+            var vColor = hasColor && colorInput ? colorInput.value.trim() : '';
+            var sizeVal = (inputs[0] || {}).value || '';
+            var priceVal = (inputs[1] || {}).value || '';
+            var stockVal = (inputs[2] || {}).value || 0;
             sizeVal = sizeVal.trim();
             if (!sizeVal) continue;
 
             var variantData = {
                 product_id: product.id,
                 size: sizeVal,
-                color: hasColor ? vColorHex : 'default',
-                color_hex: hasColor ? vColorHex : null,
+                color: vColor || 'default',
+                color_hex: null,
                 price: parseInt(priceVal) || price,
                 stock: parseInt(stockVal) || 0,
-                sku: slug + '-' + (hasColor && vColorHex ? vColorHex.replace('#','') + '-' : '') + sizeVal.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+                sku: slug + '-' + (vColor ? vColor.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' : '') + sizeVal.toLowerCase().replace(/[^a-z0-9]+/g, '-')
             };
             var { error: vErr } = await yunDb.from('product_variants').insert(variantData);
             if (vErr) { console.error('Variant insert error:', vErr); alert('Variant error: ' + vErr.message); }
