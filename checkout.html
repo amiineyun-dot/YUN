@@ -8,12 +8,11 @@
     <link rel="icon" type="image/png" href="https://res.cloudinary.com/dcj7lqvph/image/upload/q_auto/f_auto/v1781461884/IMG_20260531_223119_1_ebk1xo.png">
     <link rel="apple-touch-icon" href="https://res.cloudinary.com/dcj7lqvph/image/upload/q_auto/f_auto/v1781461884/IMG_20260531_223119_1_ebk1xo.png">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="YUN — Y2K Fashion Algeria">
-    <meta property="og:description" content="Premium Y2K fashion streetwear. Free shipping across Algeria.">
+    <meta property="og:title" content="YUN">
     <meta property="og:image" content="https://res.cloudinary.com/dcj7lqvph/image/upload/q_auto/f_auto/v1781461884/IMG_20260531_223119_1_ebk1xo.png">
     <meta property="og:url" content="https://sweet-brioche-a912f4.netlify.app">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="YUN — Y2K Fashion Algeria">
+    <meta name="twitter:title" content="YUN">
     <meta name="twitter:image" content="https://res.cloudinary.com/dcj7lqvph/image/upload/q_auto/f_auto/v1781461884/IMG_20260531_223119_1_ebk1xo.png">
     <title>YUN — Checkout</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -341,9 +340,9 @@
                                 <span class="delivery-type-label" data-i18n="home_delivery">Home Delivery</span>
                                 <span class="delivery-type-desc" data-i18n="home_delivery_desc">Delivered to your door</span>
                             </button>
-                            <button type="button" class="delivery-type-btn" id="btnPickup" onclick="selectDeliveryType('pickup')">
+                            <button type="button" class="delivery-type-btn" id="btnPickup" onclick="selectDeliveryType('post')">
                                 <span class="delivery-type-icon">📮</span>
-                                <span class="delivery-type-label" data-i18n="pickup_point">Pickup Point</span>
+                                <span class="delivery-type-label" data-i18n="pickup_point">Stop Desk</span>
                                 <span class="delivery-type-desc" data-i18n="pickup_desc">Collect from station</span>
                             </button>
                         </div>
@@ -391,7 +390,7 @@
 
                             <div id="homeAddressField">
                                 <div class="form-group">
-                                    <label class="form-label" for="homeAddress"><span data-i18n="home_address">Detailed Address</span> *</label>
+                                    <label class="form-label" for="homeAddress"><span data-i18n="home_address">Detailed Address</span></label>
                                     <input type="text" id="homeAddress" class="form-input" placeholder="Street name, building, etc..." autocomplete="street-address" data-i18n-placeholder="address_placeholder">
                                     <div class="field-error" id="homeAddressError"></div>
                                 </div>
@@ -878,7 +877,6 @@
                 if (phone2 && !validatePhone(phone2).ok) { errors.push('Invalid second phone'); }
                 if (!selectedWilayaCode) { showError(document.getElementById('wilayaSelect').querySelector('.custom-select-trigger'), document.getElementById('wilayaError'), 'Please select a wilaya'); errors.push('Wilaya required'); }
                 if (!selectedCommune) { showError(document.getElementById('communeSelect').querySelector('.custom-select-trigger'), document.getElementById('communeError'), 'Please select a commune'); errors.push('Commune required'); }
-                if (selectedDeliveryType === 'home' && !homeAddress) { showError(document.getElementById('homeAddress'), document.getElementById('homeAddressError'), 'Address is required for home delivery'); errors.push('Address required'); }
                 if (cart.length === 0) { alert('Your cart is empty'); errors.push('Empty cart'); }
 
                 if (errors.length > 0) {

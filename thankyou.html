@@ -8,12 +8,11 @@
     <link rel="icon" type="image/png" href="https://res.cloudinary.com/dcj7lqvph/image/upload/q_auto/f_auto/v1781461884/IMG_20260531_223119_1_ebk1xo.png">
     <link rel="apple-touch-icon" href="https://res.cloudinary.com/dcj7lqvph/image/upload/q_auto/f_auto/v1781461884/IMG_20260531_223119_1_ebk1xo.png">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="YUN — Y2K Fashion Algeria">
-    <meta property="og:description" content="Premium Y2K fashion streetwear. Free shipping across Algeria.">
+    <meta property="og:title" content="YUN">
     <meta property="og:image" content="https://res.cloudinary.com/dcj7lqvph/image/upload/q_auto/f_auto/v1781461884/IMG_20260531_223119_1_ebk1xo.png">
     <meta property="og:url" content="https://sweet-brioche-a912f4.netlify.app">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="YUN — Y2K Fashion Algeria">
+    <meta name="twitter:title" content="YUN">
     <meta name="twitter:image" content="https://res.cloudinary.com/dcj7lqvph/image/upload/q_auto/f_auto/v1781461884/IMG_20260531_223119_1_ebk1xo.png">
     <title>YUN — Order Confirmed</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -60,7 +59,7 @@
         /* Card Scene */
         .card-scene { perspective: 1400px; width: 340px; height: 480px; position: relative; z-index: 1; }
         .card-3d { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; }
-        .card-3d.auto-spin { animation: cardSpin 2.5s ease-in-out 2 forwards; }
+        .card-3d.auto-spin { animation: cardSpin 2.5s ease-in-out 1 forwards; }
         .card-3d.manual { cursor: grab; }
         .card-3d.manual:active { cursor: grabbing; }
         @keyframes cardSpin {
@@ -647,7 +646,7 @@
                 document.getElementById('tySubtotal').textContent = lastOrder.subtotal.toLocaleString() + ' DA';
                 document.getElementById('tyShipping').textContent = (lastOrder.shipping_cost || 0).toLocaleString() + ' DA';
                 document.getElementById('tyTotal').textContent = (lastOrder.total || 0).toLocaleString() + ' DA';
-                document.getElementById('tyDelivery').textContent = lastOrder.delivery_type === 'home' ? 'Home Delivery' : 'Post Office';
+                document.getElementById('tyDelivery').textContent = lastOrder.delivery_type === 'home' ? 'Home Delivery' : 'Stop Desk';
                 document.getElementById('tyPhone').textContent = '📞 ' + (lastOrder.phone || '—');
                 document.getElementById('tyWilaya').textContent = '📍 ' + (lastOrder.wilaya_name || '—') + (lastOrder.commune ? ', ' + lastOrder.commune : '');
             }
@@ -678,21 +677,22 @@
                     card.classList.add('manual');
                     card.style.transform = 'rotateY(0deg)';
 
-                    var isDragging = false, startX = 0, currentRotY = 0, dragRotY = 0;
-                    function onStart(cx) { isDragging = true; startX = cx; card.style.transition = 'none'; }
-                    function onMove(cx) {
+                    var isDragging = false, startX = 0, startY = 0, curX = 0, curY = 0;
+                    function onStart(cx, cy) { isDragging = true; startX = cx; startY = cy; card.style.transition = 'none'; }
+                    function onMove(cx, cy) {
                         if (!isDragging) return;
-                        dragRotY = currentRotY + (cx - startX) * 0.5;
-                        card.style.transform = 'rotateY(' + dragRotY + 'deg)';
+                        curX = (cx - startX) * 0.5;
+                        curY = (cy - startY) * 0.5;
+                        card.style.transform = 'rotateX(' + curY + 'deg) rotateY(' + curX + 'deg)';
                     }
-                    function onEnd() { if (!isDragging) return; isDragging = false; currentRotY = dragRotY; card.style.transition = 'transform 0.3s ease-out'; }
-                    card.addEventListener('mousedown', function(e) { e.preventDefault(); onStart(e.clientX); });
-                    document.addEventListener('mousemove', function(e) { onMove(e.clientX); });
+                    function onEnd() { if (!isDragging) return; isDragging = false; card.style.transition = 'transform 0.5s ease-out'; card.style.transform = 'rotateX(0deg) rotateY(0deg)'; }
+                    card.addEventListener('mousedown', function(e) { e.preventDefault(); onStart(e.clientX, e.clientY); });
+                    document.addEventListener('mousemove', function(e) { onMove(e.clientX, e.clientY); });
                     document.addEventListener('mouseup', function() { onEnd(); });
-                    card.addEventListener('touchstart', function(e) { onStart(e.touches[0].clientX); }, { passive: true });
-                    card.addEventListener('touchmove', function(e) { onMove(e.touches[0].clientX); }, { passive: true });
+                    card.addEventListener('touchstart', function(e) { onStart(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+                    card.addEventListener('touchmove', function(e) { onMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
                     card.addEventListener('touchend', function() { onEnd(); }, { passive: true });
-                }, 5000);
+                }, 2500);
             }
         });
 
