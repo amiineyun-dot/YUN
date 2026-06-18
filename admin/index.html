@@ -1408,17 +1408,24 @@ async function updateOrderStatus(id, status) {
 
 async function deleteOrder(id) {
     if (!confirm('Delete this order permanently? This cannot be undone.')) return;
+    var btn = event.target;
+    if (btn) { btn.disabled = true; btn.textContent = '...'; }
     try {
-        await yunDb.from('stock_movements').delete().eq('order_id', id);
-    } catch(e) { console.error('delete stock_movements:', e); }
-    try {
-        await yunDb.from('order_items').delete().eq('order_id', id);
-    } catch(e) { console.error('delete items:', e); }
-    try {
-        await yunDb.from('orders').delete().eq('id', id);
-    } catch(e) { console.error('delete order:', e); alert('Delete failed: ' + e.message); return; }
-    loadOrders();
-    showToast('✓ Order deleted');
+        // Delete all related data in parallel
+        await Promise.allSettled([
+            yunDb.from('stock_movements').delete().eq('order_id', id),
+            yunDb.from('order_items').delete().eq('order_id', id)
+        ]);
+        // Then delete the order itself
+        var { error } = await yunDb.from('orders').delete().eq('id', id);
+        if (error) throw error;
+        showToast('✓ Order deleted');
+        loadOrders();
+    } catch(e) {
+        console.error('Delete error:', e);
+        alert('Delete failed: ' + e.message);
+        if (btn) { btn.disabled = false; btn.textContent = '🗑'; }
+    }
 }
 
 function setOrderFilter(el, status) {

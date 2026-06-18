@@ -391,8 +391,9 @@
 
                             <div id="homeAddressField">
                                 <div class="form-group">
-                                    <label class="form-label" for="homeAddress"><span data-i18n="home_address">Detailed Address</span></label>
+                                    <label class="form-label" for="homeAddress"><span data-i18n="home_address">Detailed Address</span> *</label>
                                     <input type="text" id="homeAddress" class="form-input" placeholder="Street name, building, etc..." autocomplete="street-address" data-i18n-placeholder="address_placeholder">
+                                    <div class="field-error" id="homeAddressError"></div>
                                 </div>
                             </div>
 
@@ -580,7 +581,7 @@
 
         // === VALIDATION ===
         var NAME_REGEX = /^[a-zA-Z\u0600-\u06FF\u00C0-\u024F\s'\-]+$/;
-        var PHONE_REGEX = /^0[0-9]{9}$/;
+        var PHONE_REGEX = /^0[567][0-9]{8}$/;
         var COOLDOWN_HOURS = 4;
 
         function validateName(v, label) {
@@ -877,6 +878,7 @@
                 if (phone2 && !validatePhone(phone2).ok) { errors.push('Invalid second phone'); }
                 if (!selectedWilayaCode) { showError(document.getElementById('wilayaSelect').querySelector('.custom-select-trigger'), document.getElementById('wilayaError'), 'Please select a wilaya'); errors.push('Wilaya required'); }
                 if (!selectedCommune) { showError(document.getElementById('communeSelect').querySelector('.custom-select-trigger'), document.getElementById('communeError'), 'Please select a commune'); errors.push('Commune required'); }
+                if (selectedDeliveryType === 'home' && !homeAddress) { showError(document.getElementById('homeAddress'), document.getElementById('homeAddressError'), 'Address is required for home delivery'); errors.push('Address required'); }
                 if (cart.length === 0) { alert('Your cart is empty'); errors.push('Empty cart'); }
 
                 if (errors.length > 0) {
@@ -922,7 +924,8 @@
                 }).select().single();
 
                 if (orderError) {
-                    alert('Error placing order. Please try again.');
+                    console.error('Order error:', orderError);
+                    alert('Error placing order: ' + (orderError.message || orderError.details || orderError.code || JSON.stringify(orderError)));
                     btn.classList.remove('loading'); btn.disabled = false; return;
                 }
 
