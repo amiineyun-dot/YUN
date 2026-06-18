@@ -726,7 +726,7 @@
         window.selectDeliveryType = function(type) {
             selectedDeliveryType = type;
             document.getElementById('btnHome').classList.toggle('active', type === 'home');
-            document.getElementById('btnPickup').classList.toggle('active', type === 'pickup');
+            document.getElementById('btnPickup').classList.toggle('active', type === 'post');
             document.getElementById('homeAddressField').style.display = type === 'home' ? 'block' : 'none';
             document.getElementById('communeLabel').textContent = type === 'home' ? 'Commune *' : 'Stop Desk *';
             updateSummary();

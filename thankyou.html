@@ -667,31 +667,21 @@
             }
             spawnConfetti();
 
-            // Card: auto-spin 2 times, then manual drag
+            // Card: auto-spin once, then click to flip
             var card = document.getElementById('tyCard');
             if (card) {
                 card.classList.add('auto-spin');
-                // After 2 spins (5s total), switch to manual
                 setTimeout(function() {
                     card.classList.remove('auto-spin');
-                    card.classList.add('manual');
                     card.style.transform = 'rotateY(0deg)';
+                    card.style.transition = 'transform 0.6s cubic-bezier(0.22,1,0.36,1)';
+                    card.style.cursor = 'pointer';
 
-                    var isDragging = false, startX = 0, startY = 0, curX = 0, curY = 0;
-                    function onStart(cx, cy) { isDragging = true; startX = cx; startY = cy; card.style.transition = 'none'; }
-                    function onMove(cx, cy) {
-                        if (!isDragging) return;
-                        curX = (cx - startX) * 0.5;
-                        curY = (cy - startY) * 0.5;
-                        card.style.transform = 'rotateX(' + curY + 'deg) rotateY(' + curX + 'deg)';
-                    }
-                    function onEnd() { if (!isDragging) return; isDragging = false; card.style.transition = 'transform 0.5s ease-out'; card.style.transform = 'rotateX(0deg) rotateY(0deg)'; }
-                    card.addEventListener('mousedown', function(e) { e.preventDefault(); onStart(e.clientX, e.clientY); });
-                    document.addEventListener('mousemove', function(e) { onMove(e.clientX, e.clientY); });
-                    document.addEventListener('mouseup', function() { onEnd(); });
-                    card.addEventListener('touchstart', function(e) { onStart(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
-                    card.addEventListener('touchmove', function(e) { onMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
-                    card.addEventListener('touchend', function() { onEnd(); }, { passive: true });
+                    var flipped = false;
+                    card.addEventListener('click', function() {
+                        flipped = !flipped;
+                        card.style.transform = flipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
+                    });
                 }, 2500);
             }
         });
