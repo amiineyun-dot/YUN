@@ -390,7 +390,8 @@
     <!-- End Meta Pixel Code -->
     <script>
     if (typeof fbq !== 'undefined') {
-      fbq('track', 'CompleteRegistration', { currency: 'DZD', status: 'order_confirmed' });
+      var orderTotal = parseInt(localStorage.getItem('yun_order_total') || '0');
+      fbq('track', 'Purchase', { value: orderTotal, currency: 'DZD' });
     }
     </script>
     <script src="i18n.js"></script>

@@ -960,6 +960,7 @@
                 }
 
                 localStorage.removeItem('yun_cart');
+                localStorage.setItem('yun_order_total', total);
                 localStorage.setItem('yun_last_order', JSON.stringify({
                     order_number: order.order_number, subtotal: subtotal,
                     shipping_cost: shippingCost, total: total,

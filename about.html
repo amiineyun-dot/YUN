@@ -598,6 +598,13 @@
     </script>
 <script>fbq('track', 'ViewContent', { content_name: 'About Us', content_type: 'page' });</script>
 <script>
+document.querySelectorAll('a[href^="https://wa.me/"], a[href^="mailto:"]').forEach(function(a) {
+  a.addEventListener('click', function() {
+    if (typeof fbq !== 'undefined') fbq('track', 'Contact', { content_name: a.textContent.trim(), content_type: 'link' });
+  });
+});
+</script>
+<script>
 document.querySelector('.btn-drawer-checkout').addEventListener('click', function(e) {
   var c = JSON.parse(localStorage.getItem('yun_cart') || '[]');
   if (c.length && typeof fbq !== 'undefined') {
