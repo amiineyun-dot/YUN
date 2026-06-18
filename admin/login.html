@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YUN Admin — Login</title>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,800;1,800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -40,6 +41,37 @@
             font-size: 0.8rem;
             color: rgba(255,255,255,0.3);
             margin-bottom: 36px;
+        }
+        .login-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 28px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.08);
+            overflow: hidden;
+        }
+        .login-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(255,255,255,0.35);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+            font-family: 'Inter', sans-serif;
+        }
+        .login-tab.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        .login-tab:hover:not(.active) {
+            color: rgba(255,255,255,0.6);
         }
         .form-group { margin-bottom: 20px; }
         .form-label {
@@ -83,6 +115,7 @@
         }
         .btn-login:hover { background: #e8e0d0; transform: translateY(-1px); }
         .btn-login:active { transform: translateY(0); }
+        .btn-login:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
         .error-msg {
             display: none;
             text-align: center;
@@ -93,6 +126,9 @@
             background: rgba(255,50,50,0.08);
             border-radius: 6px;
         }
+        .loading { display: none; text-align: center; color: rgba(255,255,255,0.4); font-size: 0.8rem; margin-top: 16px; }
+        .panel { display: none; }
+        .panel.active { display: block; }
         @media (prefers-reduced-motion: reduce) {
             * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
         }
@@ -102,50 +138,155 @@
     <div class="login-card">
         <div class="login-brand">YUN</div>
         <div class="login-subtitle">Admin Dashboard</div>
-        <form id="loginForm" onsubmit="return handleLogin(event)">
-            <div class="form-group">
-                <label class="form-label">Username</label>
-                <input type="text" id="username" class="form-input" placeholder="Enter username" required autocomplete="username">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Password</label>
-                <input type="password" id="password" class="form-input" placeholder="Enter password" required autocomplete="current-password">
-            </div>
-            <button type="submit" class="btn-login">Sign In</button>
-        </form>
-        <div class="error-msg" id="errorMsg">Invalid username or password</div>
+
+        <div class="login-tabs">
+            <button class="login-tab active" onclick="switchLoginMode('staff')" type="button">Staff</button>
+            <button class="login-tab" onclick="switchLoginMode('admin')" type="button">Admin</button>
+        </div>
+
+        <!-- Staff Panel (default) -->
+        <div class="panel active" id="panel-staff">
+            <form onsubmit="return handleStaffLogin(event)">
+                <div class="form-group">
+                    <label class="form-label">Access Code</label>
+                    <input type="text" id="accessCode" class="form-input" placeholder="Enter your access code" autocomplete="off">
+                </div>
+                <button type="submit" class="btn-login" id="staffLoginBtn">Sign In</button>
+            </form>
+        </div>
+
+        <!-- Admin Panel -->
+        <div class="panel" id="panel-admin">
+            <form onsubmit="return handleAdminLogin(event)">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="username" class="form-input" placeholder="Enter username" autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="password" class="form-input" placeholder="Enter password" autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn-login" id="adminLoginBtn">Sign In</button>
+            </form>
+        </div>
+
+        <div class="loading" id="loadingMsg">Signing in...</div>
+        <div class="error-msg" id="errorMsg">Invalid credentials</div>
     </div>
     <script>
-        // Security: disable right-click, disable dev tools shortcuts
         document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
         document.addEventListener('keydown', function(e) {
             if (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S' || e.key === 'i' || e.key === 'I')) { e.preventDefault(); }
             if (e.key === 'F12') { e.preventDefault(); }
         });
-        function handleLogin(e) {
+
+        var SUPABASE_URL = 'https://rydgzqfqxsjerqkvdmdg.supabase.co';
+        var SUPABASE_KEY = 'sb_publishable_18H-x7wam3OAI--DP3Zq3Q_Lv3Pped4';
+        var supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+        var ADMIN_USER = 'admin';
+        var ADMIN_PASS = 'Yun@2026';
+        var currentMode = 'staff';
+
+        function switchLoginMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.login-tab').forEach(function(t) { t.classList.remove('active'); });
+            document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+            if (mode === 'staff') {
+                document.querySelectorAll('.login-tab')[0].classList.add('active');
+                document.getElementById('panel-staff').classList.add('active');
+            } else {
+                document.querySelectorAll('.login-tab')[1].classList.add('active');
+                document.getElementById('panel-admin').classList.add('active');
+            }
+            hideError();
+        }
+
+        function showError(msg) {
+            var el = document.getElementById('errorMsg');
+            el.textContent = msg;
+            el.style.display = 'block';
+            document.getElementById('loadingMsg').style.display = 'none';
+            document.getElementById('staffLoginBtn').disabled = false;
+            document.getElementById('adminLoginBtn').disabled = false;
+        }
+
+        function hideError() {
+            document.getElementById('errorMsg').style.display = 'none';
+        }
+
+        function handleStaffLogin(e) {
             e.preventDefault();
+            hideError();
+            document.getElementById('loadingMsg').style.display = 'block';
+            document.getElementById('staffLoginBtn').disabled = true;
+
+            var code = document.getElementById('accessCode').value.trim();
+            if (!code) { showError('Please enter your access code'); return false; }
+            if (!supabase) { showError('Connection error. Try again.'); return false; }
+
+            supabase.from('admin_users').select('id, name, permissions, is_active')
+                .eq('access_code', code)
+                .eq('is_active', true)
+                .single()
+                .then(function(result) {
+                    if (result.error || !result.data) {
+                        showError('Invalid access code or account disabled');
+                        return;
+                    }
+                    var user = result.data;
+                    var auth = { isAdmin: false, name: user.name, permissions: user.permissions || [], subAdminId: user.id };
+                    localStorage.setItem('yun_admin_auth', JSON.stringify(auth));
+                    window.location.href = 'index.html';
+                })
+                .catch(function(err) {
+                    showError('Login failed. Please try again.');
+                });
+
+            return false;
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            hideError();
+            document.getElementById('loadingMsg').style.display = 'block';
+            document.getElementById('adminLoginBtn').disabled = true;
+
             var u = document.getElementById('username').value.trim();
             var p = document.getElementById('password').value;
-            if (u === 'admin' && p === 'Yun@2026') {
-                localStorage.setItem('yun_admin_auth', btoa(u + ':' + p));
+
+            if (u === ADMIN_USER && p === ADMIN_PASS) {
+                var auth = { isAdmin: true, name: 'Admin', permissions: ['orders','products','addproduct','categories','hero','homepage','about','productspage','settings','shipping','analytics','subadmins'] };
+                localStorage.setItem('yun_admin_auth', JSON.stringify(auth));
                 window.location.href = 'index.html';
             } else {
-                document.getElementById('errorMsg').style.display = 'block';
+                showError('Invalid username or password');
                 document.getElementById('password').value = '';
                 document.getElementById('password').focus();
             }
             return false;
         }
-        // Check if already logged in
+
+        // Check if already logged in + pre-fill from URL ?code=
         (function() {
             var auth = localStorage.getItem('yun_admin_auth');
             if (auth) {
                 try {
-                    var decoded = atob(auth).split(':');
-                    if (decoded[0] === 'admin' && decoded[1] === 'Yun@2026') {
+                    var parsed = JSON.parse(auth);
+                    if (parsed && (parsed.isAdmin || (parsed.permissions && parsed.permissions.length > 0))) {
                         window.location.href = 'index.html';
                     }
-                } catch(e) {}
+                } catch(e) {
+                    localStorage.removeItem('yun_admin_auth');
+                }
+            }
+            // Pre-fill access code from URL parameter
+            var params = new URLSearchParams(window.location.search);
+            var codeParam = params.get('code');
+            if (codeParam) {
+                switchLoginMode('staff');
+                document.getElementById('accessCode').value = codeParam;
+                document.getElementById('accessCode').focus();
             }
         })();
     </script>

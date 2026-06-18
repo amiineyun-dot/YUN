@@ -261,8 +261,8 @@
     </div>
 
     <section class="page-banner">
-        <div class="banner-eyebrow">DIGITAL AGE AESTHETIC</div>
-        <h1 class="banner-title">Y2K COLLECTION</h1>
+        <div class="banner-eyebrow" id="ppEyebrow">DIGITAL AGE AESTHETIC</div>
+        <h1 class="banner-title" id="ppTitle">Y2K COLLECTION</h1>
     </section>
 
     <div class="search-bar-wrap">
@@ -566,6 +566,16 @@ yunDb.from('categories').select('*').eq('is_active', true).order('name').then(fu
 <script>
 function escapeHtml(s) { if (!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 document.addEventListener('DOMContentLoaded', async function() {
+    // Load banner content from DB
+    if (yunDb) {
+        yunDb.from('site_settings').select('key, value').in('key', ['products_page_eyebrow', 'products_page_title']).then(function(res) {
+            if (res.data) res.data.forEach(function(r) {
+                if (r.key === 'products_page_eyebrow' && r.value) document.getElementById('ppEyebrow').textContent = r.value;
+                if (r.key === 'products_page_title' && r.value) document.getElementById('ppTitle').textContent = r.value;
+            });
+        });
+    }
+
     var grid = document.getElementById('productsGrid');
     if (!grid) return;
     if (!yunDb) { grid.innerHTML = '<div class="loading" style="grid-column:1/-1;text-align:center;padding:60px;color:rgba(255,255,255,0.3);font-family:\'Space Mono\',monospace;font-size:0.7rem">Supabase not loaded. Please refresh.</div>'; return; }

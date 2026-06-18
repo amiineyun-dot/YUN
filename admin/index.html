@@ -600,29 +600,45 @@ function fixInlineColors(theme) {
 </script>
 
 <script>
-// Admin security: disable right-click, disable Ctrl+U/I/S
-document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
-document.addEventListener('keydown', function(e) {
-    if (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S' || e.key === 'i' || e.key === 'I' || e.key === 'j' || e.key === 'J')) { e.preventDefault(); }
-    if (e.key === 'F12') { e.preventDefault(); }
-});
-
-const ADMIN_USER = 'admin';
-const ADMIN_PASS = 'Yun@2026';
+var yunIsAdmin = false;
+var yunPermissions = [];
+var yunAdminName = '';
 (function checkAuth() {
     var auth = localStorage.getItem('yun_admin_auth');
     if (!auth) { window.location.href = 'login.html'; return; }
     try {
-        var decoded = atob(auth).split(':');
-        if (decoded[0] !== ADMIN_USER || decoded[1] !== ADMIN_PASS) {
+        var parsed = JSON.parse(auth);
+        if (parsed && parsed.isAdmin) {
+            yunIsAdmin = true;
+            yunPermissions = parsed.permissions || [];
+            yunAdminName = parsed.name || 'Admin';
+        } else if (parsed && parsed.permissions && parsed.permissions.length > 0) {
+            yunIsAdmin = false;
+            yunPermissions = parsed.permissions;
+            yunAdminName = parsed.name || 'Staff';
+        } else {
             localStorage.removeItem('yun_admin_auth');
             window.location.href = 'login.html';
             return;
         }
     } catch(e) {
-        localStorage.removeItem('yun_admin_auth');
-        window.location.href = 'login.html';
-        return;
+        // Old base64 format — try legacy admin login
+        try {
+            var decoded = atob(auth).split(':');
+            if (decoded[0] === 'admin' && decoded[1] === 'Yun@2026') {
+                yunIsAdmin = true;
+                yunPermissions = ['orders','products','addproduct','categories','hero','homepage','about','productspage','settings','shipping','analytics','subadmins'];
+                yunAdminName = 'Admin';
+            } else {
+                localStorage.removeItem('yun_admin_auth');
+                window.location.href = 'login.html';
+                return;
+            }
+        } catch(e2) {
+            localStorage.removeItem('yun_admin_auth');
+            window.location.href = 'login.html';
+            return;
+        }
     }
 })();
 </script>
@@ -662,6 +678,10 @@ const ADMIN_PASS = 'Yun@2026';
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
             <span>About Page</span>
         </div>
+        <div class="nav-link" data-tab="productspage" onclick="switchTab('productspage')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            <span>Products Page</span>
+        </div>
 
         <div style="padding:14px 24px 4px;font-family:'Space Mono',monospace;font-size:0.55rem;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.15)">System</div>
 
@@ -676,6 +696,10 @@ const ADMIN_PASS = 'Yun@2026';
         <div class="nav-link" data-tab="analytics" onclick="switchTab('analytics')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
             <span>Analytics</span>
+        </div>
+        <div class="nav-link subadmin-only" data-tab="subadmins" onclick="switchTab('subadmins')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+            <span>Sub-Admins</span>
         </div>
         <div style="margin-top:auto;padding:16px 24px;border-top:1px solid rgba(255,255,255,0.08)">
             <div class="nav-link" onclick="localStorage.removeItem('yun_admin_auth');window.location.href='login.html'" style="border-left:none;color:rgba(255,50,50,0.6)">
@@ -941,6 +965,7 @@ const ADMIN_PASS = 'Yun@2026';
                 <div style="display:flex;gap:8px;margin-top:16px">
                     <button type="button" class="btn-admin btn-sm" onclick="saveZrSettings()">Save Settings</button>
                     <button type="button" class="btn-admin-ghost btn-sm" onclick="testZrApi()">Test API</button>
+                    <button type="button" class="btn-admin-ghost btn-sm" onclick="testZrTerritories()">Test Territories</button>
                 </div>
                 <div id="zrTestResult" style="font-family:'Space Mono',monospace;font-size:0.7rem;margin-top:8px;display:none"></div>
             </div>
@@ -1050,6 +1075,63 @@ const ADMIN_PASS = 'Yun@2026';
             </div>
             <div id="homepageContent"><div class="loading">Loading homepage content...</div></div>
         </div>
+
+        <!-- ===== SECTION: PRODUCTS PAGE ===== -->
+        <div id="section-productspage" class="hidden">
+            <div class="section-title">Products Page</div>
+            <div class="settings-card">
+                <h3>Banner</h3>
+                <p style="font-size:0.78rem;color:rgba(255,255,255,0.35);margin-bottom:16px">Edit the banner title and subtitle on the products page.</p>
+                <div style="display:flex;flex-direction:column;gap:12px">
+                    <div>
+                        <label class="form-label">Subtitle (eyebrow)</label>
+                        <input type="text" id="ppEyebrow" class="form-input" placeholder="DIGITAL AGE AESTHETIC">
+                    </div>
+                    <div>
+                        <label class="form-label">Title</label>
+                        <input type="text" id="ppTitle" class="form-input" placeholder="Y2K COLLECTION">
+                    </div>
+                    <div>
+                        <button class="btn-admin" onclick="saveProductsPage()">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SECTION: SUB ADMINS ===== -->
+        <div id="section-subadmins" class="hidden">
+            <div class="section-title">Sub-Admins</div>
+            <p style="color:rgba(255,255,255,0.4);font-size:0.8rem;margin-bottom:24px">Create staff accounts with limited access. Share the access code with them to log in.</p>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+                <!-- Add Form -->
+                <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:24px">
+                    <div style="font-size:0.85rem;font-weight:600;color:rgba(255,255,255,0.8);margin-bottom:20px">Add Sub-Admin</div>
+                    <div class="form-group">
+                        <label class="form-label">Name</label>
+                        <input type="text" id="saName" class="form-input" placeholder="e.g. Mohammed">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Access Code</label>
+                        <div style="display:flex;gap:8px">
+                            <input type="text" id="saCode" class="form-input" placeholder="e.g. YUN-MOH" style="flex:1">
+                            <button class="btn-admin" onclick="generateSaCode()" style="white-space:nowrap;font-size:0.75rem;padding:0 16px">Generate</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Permissions</label>
+                        <div id="saPermissions" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+                    </div>
+                    <button class="btn-admin" onclick="saveSubAdmin()" id="saSaveBtn">Create Sub-Admin</button>
+                </div>
+
+                <!-- List -->
+                <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:24px">
+                    <div style="font-size:0.85rem;font-weight:600;color:rgba(255,255,255,0.8);margin-bottom:20px">Existing Sub-Admins</div>
+                    <div id="saList"></div>
+                </div>
+            </div>
+        </div>
     </main>
 </div>
 
@@ -1062,6 +1144,11 @@ const SUPABASE_URL = 'https://rydgzqfqxsjerqkvdmdg.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_18H-x7wam3OAI--DP3Zq3Q_Lv3Pped4';
 const yunDb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 if (!yunDb) { console.error('Supabase not loaded'); }
+
+function escHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
 // ===================== TOAST =====================
 function showToast(msg) {
@@ -1084,12 +1171,26 @@ var heroVideoUrl = '';
 var pendingHeroVideo = null;
 
 // ===================== TAB SWITCHING =====================
+var TAB_LABELS = {
+    orders:'Orders', products:'Products', addproduct:'Add Product', categories:'Categories',
+    hero:'Hero Media', homepage:'Homepage', about:'About Page', productspage:'Products Page',
+    settings:'Zr Express API', shipping:'Shipping Prices', analytics:'Analytics', subadmins:'Sub-Admins'
+};
+
+function canAccessTab(tab) {
+    if (yunIsAdmin) return true;
+    return yunPermissions.indexOf(tab) !== -1;
+}
+
 function switchTab(tab) {
+    if (!canAccessTab(tab)) return;
     currentTab = tab;
     document.querySelectorAll('.nav-link').forEach(function(el) { el.classList.remove('active'); });
-    document.querySelector('.nav-link[data-tab="' + tab + '"]').classList.add('active');
+    var activeLink = document.querySelector('.nav-link[data-tab="' + tab + '"]');
+    if (activeLink) activeLink.classList.add('active');
     document.querySelectorAll('[id^="section-"]').forEach(function(el) { el.classList.add('hidden'); });
-    document.getElementById('section-' + tab).classList.remove('hidden');
+    var section = document.getElementById('section-' + tab);
+    if (section) section.classList.remove('hidden');
     if (tab === 'orders') loadOrders();
     if (tab === 'addproduct') {
         if (!editingProductId) {
@@ -1112,6 +1213,8 @@ function switchTab(tab) {
     if (tab === 'shipping') loadShippingPrices();
     if (tab === 'about') loadAboutContent();
     if (tab === 'homepage') loadHomepageContent();
+    if (tab === 'productspage') loadProductsPage();
+    if (tab === 'subadmins') { loadSubAdmins(); renderSaPermissionCheckboxes(); }
     // Clear order badge when viewing orders
     if (tab === 'orders') {
         var badge = document.getElementById('orderNotificationBadge');
@@ -1305,9 +1408,15 @@ async function updateOrderStatus(id, status) {
 
 async function deleteOrder(id) {
     if (!confirm('Delete this order permanently? This cannot be undone.')) return;
-    await yunDb.from('order_items').delete().eq('order_id', id);
-    await yunDb.rpc('restore_stock_on_cancel', { p_order_id: id });
-    await yunDb.from('orders').delete().eq('id', id);
+    try {
+        await yunDb.from('stock_movements').delete().eq('order_id', id);
+    } catch(e) { console.error('delete stock_movements:', e); }
+    try {
+        await yunDb.from('order_items').delete().eq('order_id', id);
+    } catch(e) { console.error('delete items:', e); }
+    try {
+        await yunDb.from('orders').delete().eq('id', id);
+    } catch(e) { console.error('delete order:', e); alert('Delete failed: ' + e.message); return; }
     loadOrders();
     showToast('✓ Order deleted');
 }
@@ -2048,6 +2157,131 @@ async function saveZrSettings() {
     showToast('✓ Zr Express settings saved!');
 }
 
+// ===================== ZR TERRITORIES =====================
+var _zrTerritories = null;
+
+async function fetchZrTerritories() {
+    if (_zrTerritories) return _zrTerritories;
+    try {
+        var res = await zrProxy('/territories/search?version=1', 'POST', {
+            pageSize: 1000,
+            pageNumber: 1
+        });
+        console.log('Territories response keys:', res ? Object.keys(res) : 'null');
+        console.log('Sample territory:', res && res.items ? res.items[0] : (res && res.data ? res.data[0] : res));
+        var items = (res && res.items) ? res.items : (res && res.data) ? res.data : (Array.isArray(res) ? res : []);
+        _zrTerritories = items;
+        return _zrTerritories;
+    } catch(e) { console.error('Failed to fetch territories:', e); }
+    return [];
+}
+
+function findCityId(territories, wilayaName) {
+    if (!wilayaName || !territories.length) return null;
+    var name = wilayaName.toLowerCase().trim();
+    // Match wilaya (level: "wilaya")
+    var match = territories.find(function(t) {
+        var n = (t.name || '').toLowerCase().trim();
+        var l = (t.level || '').toLowerCase();
+        return l === 'wilaya' && n === name;
+    });
+    if (!match) {
+        match = territories.find(function(t) {
+            var n = (t.name || '').toLowerCase().trim();
+            var l = (t.level || '').toLowerCase();
+            return l === 'wilaya' && (n.includes(name) || name.includes(n));
+        });
+    }
+    // Fallback: any territory with matching name
+    if (!match) {
+        match = territories.find(function(t) {
+            var n = (t.name || '').toLowerCase().trim();
+            return n === name;
+        });
+    }
+    if (!match) {
+        var clean = name.replace(/[\s\-']/g, '');
+        match = territories.find(function(t) {
+            var n = (t.name || '').toLowerCase().replace(/[\s\-']/g, '');
+            return n.includes(clean) || clean.includes(n);
+        });
+    }
+    return match ? match.id : null;
+}
+
+function findDistrictId(territories, communeName, cityId) {
+    if (!communeName || !territories.length) return null;
+    var name = communeName.toLowerCase().trim();
+
+    // Match commune under this city (level: "commune", parentId = cityId)
+    var match = territories.find(function(t) {
+        var n = (t.name || '').toLowerCase().trim();
+        var l = (t.level || '').toLowerCase();
+        return l === 'commune' && t.parentId === cityId && n === name;
+    });
+    if (!match) {
+        match = territories.find(function(t) {
+            var n = (t.name || '').toLowerCase();
+            var l = (t.level || '').toLowerCase();
+            return l === 'commune' && t.parentId === cityId && (n.includes(name) || name.includes(n));
+        });
+    }
+    // Any commune under this city
+    if (!match && cityId) {
+        match = territories.find(function(t) {
+            var l = (t.level || '').toLowerCase();
+            return l === 'commune' && t.parentId === cityId;
+        });
+    }
+    // Fallback: any commune with matching name
+    if (!match) {
+        match = territories.find(function(t) {
+            var n = (t.name || '').toLowerCase().trim();
+            var l = (t.level || '').toLowerCase();
+            return l === 'commune' && (n.includes(name) || name.includes(n));
+        });
+    }
+    return match ? match.id : null;
+}
+
+async function testZrTerritories() {
+    var el = document.getElementById('zrTestResult');
+    el.style.display = 'block';
+    el.style.color = 'rgba(255,255,255,0.5)';
+    el.textContent = 'Fetching territories...';
+
+    var { apiKey, tenantId } = await getZrCredentials();
+    if (!apiKey || !tenantId) {
+        el.style.color = '#ff3232';
+        el.textContent = '✗ Please save API Key and Tenant ID first';
+        return;
+    }
+
+    try {
+        var res = await zrProxy('/territories/search?version=1', 'POST', { pageSize: 1000, pageNumber: 1 });
+        var items = (res && res.items) ? res.items : (res && res.data) ? res.data : (Array.isArray(res) ? res : []);
+        if (!items.length) {
+            el.style.color = '#ff3232';
+            el.textContent = '✗ No territories found. Response: ' + JSON.stringify(res).substring(0, 300);
+            return;
+        }
+        var sample = items[0];
+        var keys = Object.keys(sample);
+        var html = '<div style="color:#00c864;margin-bottom:8px">✓ Found ' + items.length + ' territories</div>';
+        html += '<div style="margin-bottom:8px;color:rgba(255,255,255,0.6)">Fields: <code>' + keys.join(', ') + '</code></div>';
+        html += '<div style="margin-bottom:4px;color:rgba(255,255,255,0.6)">Sample #1:</div>';
+        html += '<pre style="background:rgba(0,0,0,0.3);padding:8px;border-radius:6px;overflow-x:auto;font-size:0.65rem;color:rgba(255,255,255,0.7)">' + JSON.stringify(sample, null, 2) + '</pre>';
+        if (items.length > 1) {
+            html += '<div style="margin:4px 0;color:rgba(255,255,255,0.6)">Sample #2:</div>';
+            html += '<pre style="background:rgba(0,0,0,0.3);padding:8px;border-radius:6px;overflow-x:auto;font-size:0.65rem;color:rgba(255,255,255,0.7)">' + JSON.stringify(items[1], null, 2) + '</pre>';
+        }
+        el.innerHTML = html;
+    } catch(e) {
+        el.style.color = '#ff3232';
+        el.textContent = '✗ Error: ' + e.message;
+    }
+}
+
 async function testZrApi() {
     var el = document.getElementById('zrTestResult');
     el.style.display = 'block';
@@ -2092,8 +2326,28 @@ async function shipWithZr(orderId) {
 
     try {
         var customerName = order.customer_name || ((order.first_name || '') + ' ' + (order.last_name || '')).trim();
-        var phone = (order.phone || '').replace(/\s/g, '');
-        if (!phone.startsWith('+')) phone = '+213' + phone.replace(/^0/, '');
+        var phone = (order.phone || '').replace(/[\s\-\(\)\.]/g, '');
+        // Ensure valid international format: +213XXXXXXXXX
+        if (phone.startsWith('+213')) {
+            // already correct format
+        } else if (phone.startsWith('00213')) {
+            phone = '+213' + phone.slice(5);
+        } else if (phone.startsWith('213')) {
+            phone = '+' + phone;
+        } else if (phone.startsWith('0')) {
+            phone = '+213' + phone.slice(1);
+        } else {
+            phone = '+213' + phone;
+        }
+        // Remove any non-digit after +213
+        phone = '+213' + phone.replace(/[^0-9]/g, '').replace(/^213/, '');
+        console.log('Phone raw:', order.phone, '-> formatted:', phone);
+        // Validate: must be +213 followed by 9-10 digits
+        if (!/^\+213[0-9]{9,10}$/.test(phone)) {
+            alert('Invalid phone number: ' + phone + '. Must be +213 followed by 9-10 digits.\nRaw value: ' + order.phone);
+            if (btn) { btn.textContent = '🚚 Ship with Zr Express'; btn.disabled = false; }
+            return;
+        }
 
         var products = items.map(function(i) {
             return {
@@ -2103,6 +2357,40 @@ async function shipWithZr(orderId) {
                 stockType: 'none'
             };
         });
+
+        // Fetch territories for cityTerritoryId + districtTerritoryId
+        var territories = await fetchZrTerritories();
+        console.log('Sample territory:', territories[0]);
+        console.log('Territories count:', territories.length);
+
+        var cityId = findCityId(territories, order.wilaya_name);
+        var districtId = findDistrictId(territories, order.commune, cityId);
+
+        console.log('City:', order.wilaya_name, '->', cityId);
+        console.log('Commune:', order.commune, '->', districtId);
+
+        // If no district found, try finding ANY territory under this city
+        if (!districtId && cityId) {
+            var anyChild = territories.find(function(t) {
+                return t.parentId === cityId && t.id !== cityId;
+            });
+            if (anyChild) {
+                districtId = anyChild.id;
+                console.log('Fallback district:', anyChild.name, districtId);
+            }
+        }
+
+        // If still no district, try finding by commune name in ALL territories
+        if (!districtId && order.commune) {
+            var cName = order.commune.toLowerCase().trim();
+            var anyMatch = territories.find(function(t) {
+                return t.name && t.name.toLowerCase().trim() === cName && t.id !== cityId;
+            });
+            if (anyMatch) {
+                districtId = anyMatch.id;
+                console.log('Name-match district:', anyMatch.name, districtId);
+            }
+        }
 
         var payload = {
             customer: {
@@ -2116,16 +2404,46 @@ async function shipWithZr(orderId) {
             deliveryType: order.delivery_type === 'home' ? 'home' : 'pickup-point'
         };
 
-        if (order.delivery_type === 'home' && (order.home_address || order.delivery_address)) {
-            payload.deliveryAddress = { street: order.home_address || order.delivery_address };
+        var deliveryAddr = {};
+        if (cityId) deliveryAddr.cityTerritoryId = cityId;
+        if (districtId) deliveryAddr.districtTerritoryId = districtId;
+        deliveryAddr.street = order.home_address || order.commune || order.wilaya_name || 'Algeria';
+        payload.deliveryAddress = deliveryAddr;
+
+        // If pickup-point, fetch hubs for this city
+        var hubId = null;
+        if (payload.deliveryType === 'pickup-point' && cityId) {
+            try {
+                var hubsRes = await zrProxy('/hubs/search?version=1', 'POST', { pageSize: 100, pageNumber: 1 });
+                var hubs = (hubsRes && hubsRes.items) ? hubsRes.items : [];
+                // Find a hub in the same city/territory
+                var hub = hubs.find(function(h) {
+                    return h.territoryId === cityId || h.cityTerritoryId === cityId;
+                });
+                if (!hub && hubs.length) hub = hubs[0]; // fallback to first hub
+                if (hub) {
+                    hubId = hub.id;
+                    console.log('Found hub:', hub.name, hubId);
+                } else {
+                    console.log('No hubs found, sending as home delivery');
+                    payload.deliveryType = 'home';
+                }
+            } catch(e) {
+                console.error('Failed to fetch hubs:', e);
+                payload.deliveryType = 'home';
+            }
         }
+        if (hubId) payload.hubId = hubId;
+
+        console.log('Zr Express payload:', JSON.stringify(payload, null, 2));
 
         var data = await zrProxy('/parcels?version=1', 'POST', payload);
 
         if (data.id) {
-            await yunDb.from('orders').update({ tracking_number: data.id, status: 'confirmed' }).eq('id', orderId);
-            showToast('✓ Parcel created! ID: ' + data.id.slice(0, 8) + '...');
+            await yunDb.from('orders').update({ tracking_number: data.id }).eq('id', orderId);
+            showToast('✓ Parcel created! Tracking: ' + data.id.slice(0, 8) + '...');
             if (btn) { btn.textContent = '✓ Shipped!'; btn.style.background = '#00c864'; }
+            closeOrderModal();
             loadOrders();
         } else {
             var msg = (data.errors && data.errors[0]) ? data.errors[0].description : (data.detail || data.error || 'Unknown error');
@@ -2677,6 +2995,25 @@ function switchHomepageLang(el, lang) {
     loadHomepageContent();
 }
 
+// ===================== PRODUCTS PAGE =====================
+async function loadProductsPage() {
+    var { data } = await yunDb.from('site_settings').select('key, value').in('key', ['products_page_eyebrow', 'products_page_title']);
+    var settings = {};
+    if (data) data.forEach(function(r) { settings[r.key] = r.value; });
+    document.getElementById('ppEyebrow').value = settings.products_page_eyebrow || '';
+    document.getElementById('ppTitle').value = settings.products_page_title || '';
+}
+
+async function saveProductsPage() {
+    var eyebrow = document.getElementById('ppEyebrow').value.trim();
+    var title = document.getElementById('ppTitle').value.trim();
+    await yunDb.from('site_settings').upsert([
+        { key: 'products_page_eyebrow', value: eyebrow },
+        { key: 'products_page_title', value: title }
+    ], { onConflict: 'key' });
+    showToast('✓ Products page content saved!');
+}
+
 async function loadHomepageContent() {
     var container = document.getElementById('homepageContent');
     container.innerHTML = '<div class="loading">Loading homepage content...</div>';
@@ -2898,6 +3235,152 @@ function closeOrderModal() {
 function printOrder() {
     window.print();
 }
+
+// ===================== SUB-ADMINS =====================
+var saPermissions = [
+    'orders','products','addproduct','categories','hero','homepage','about','productspage','settings','shipping','analytics'
+];
+
+function renderSaPermissionCheckboxes() {
+    var container = document.getElementById('saPermissions');
+    container.innerHTML = '';
+    saPermissions.forEach(function(perm) {
+        var label = document.createElement('label');
+        label.style.cssText = 'display:flex;align-items:center;gap:6px;font-size:0.75rem;color:rgba(255,255,255,0.6);cursor:pointer;background:rgba(255,255,255,0.06);padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.1)';
+        var cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.className = 'sa-perm-cb';
+        cb.value = perm;
+        cb.style.cssText = 'accent-color:#e8e0d0';
+        label.appendChild(cb);
+        label.appendChild(document.createTextNode(TAB_LABELS[perm] || perm));
+        container.appendChild(label);
+    });
+}
+
+function generateSaCode() {
+    var name = document.getElementById('saName').value.trim();
+    var slug = name.toUpperCase().replace(/[^A-Z0-9]/g, '-').replace(/-+/g, '-');
+    if (!slug) slug = 'STAFF';
+    var code = 'YUN-' + slug + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+    document.getElementById('saCode').value = code;
+}
+
+function getSelectedPermissions() {
+    var perms = [];
+    document.querySelectorAll('.sa-perm-cb:checked').forEach(function(cb) {
+        perms.push(cb.value);
+    });
+    return perms;
+}
+
+async function saveSubAdmin() {
+    var name = document.getElementById('saName').value.trim();
+    var code = document.getElementById('saCode').value.trim();
+    var perms = getSelectedPermissions();
+
+    if (!name) { alert('Name is required'); return; }
+    if (!code) { alert('Access code is required'); return; }
+    if (perms.length === 0) { alert('Select at least one permission'); return; }
+
+    var btn = document.getElementById('saSaveBtn');
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+
+    try {
+        var { data: existing } = await yunDb.from('admin_users').select('id').eq('access_code', code).maybeSingle();
+        if (existing) { alert('Access code already exists. Generate a new one.'); btn.disabled = false; btn.textContent = 'Create Sub-Admin'; return; }
+
+        var { error } = await yunDb.from('admin_users').insert({ name: name, access_code: code, permissions: perms, is_active: true });
+        if (error) throw error;
+
+        document.getElementById('saName').value = '';
+        document.getElementById('saCode').value = '';
+        document.querySelectorAll('.sa-perm-cb').forEach(function(cb) { cb.checked = false; });
+        loadSubAdmins();
+        showToast('Sub-Admin created');
+    } catch(e) {
+        alert('Error: ' + e.message);
+    }
+    btn.disabled = false;
+    btn.textContent = 'Create Sub-Admin';
+}
+
+async function loadSubAdmins() {
+    var { data } = await yunDb.from('admin_users').select('*').order('created_at', { ascending: false });
+    var container = document.getElementById('saList');
+    if (!data || data.length === 0) {
+        container.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.3);padding:32px 0">No sub-admins yet</div>';
+        return;
+    }
+    container.innerHTML = data.map(function(sa) {
+        var permLabels = (sa.permissions || []).map(function(p) {
+            return '<span style="display:inline-block;background:rgba(255,255,255,0.08);padding:3px 8px;border-radius:4px;font-size:0.7rem;color:rgba(255,255,255,0.6)">' + (TAB_LABELS[p] || p) + '</span>';
+        }).join(' ');
+        return '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:16px;margin-bottom:12px">' +
+            '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">' +
+                '<div><div style="font-weight:600;color:rgba(255,255,255,0.85)">' + escHtml(sa.name) + '</div>' +
+                '<div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-top:2px">Code: <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:3px;color:#e8e0d0">' + escHtml(sa.access_code) + '</code></div></div>' +
+                '<div style="display:flex;gap:6px">' +
+                    '<button class="btn-admin" onclick="copySaCode(\'' + escHtml(sa.access_code) + '\')" style="font-size:0.7rem;padding:4px 10px">Copy Login Link</button>' +
+                    '<button class="btn-admin" onclick="toggleSubAdmin(\'' + sa.id + '\',' + !sa.is_active + ')" style="font-size:0.7rem;padding:4px 10px;color:' + (sa.is_active ? '#00c864' : '#ff3232') + '">' + (sa.is_active ? 'Active' : 'Disabled') + '</button>' +
+                    '<button class="btn-admin" onclick="deleteSubAdmin(\'' + sa.id + '\')" style="font-size:0.7rem;padding:4px 10px;color:#ff3232">Delete</button>' +
+                '</div>' +
+            '</div>' +
+            '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px">' + permLabels + '</div>' +
+        '</div>';
+    }).join('');
+}
+
+function copySaCode(code) {
+    var url = window.location.origin + window.location.pathname.replace(/\/admin\/.*$/, '/admin/login.html') + '?code=' + encodeURIComponent(code);
+    navigator.clipboard.writeText(url).then(function() { showToast('Login link copied for: ' + code); });
+}
+
+async function toggleSubAdmin(id, newActive) {
+    await yunDb.from('admin_users').update({ is_active: newActive }).eq('id', id);
+    loadSubAdmins();
+    showToast(newActive ? 'Sub-Admin enabled' : 'Sub-Admin disabled');
+}
+
+async function deleteSubAdmin(id) {
+    if (!confirm('Delete this sub-admin?')) return;
+    await yunDb.from('admin_users').delete().eq('id', id);
+    loadSubAdmins();
+    showToast('Sub-Admin deleted');
+}
+
+// ===================== SIDEBAR PERMISSION FILTER =====================
+(function filterSidebar() {
+    document.querySelectorAll('.nav-link[data-tab]').forEach(function(el) {
+        var tab = el.getAttribute('data-tab');
+        if (tab === 'subadmins') {
+            el.style.display = yunIsAdmin ? '' : 'none';
+        } else if (!canAccessTab(tab)) {
+            el.style.display = 'none';
+        }
+    });
+    // Hide section labels if all their children are hidden
+    document.querySelectorAll('.admin-sidebar > div[style*="letter-spacing"]').forEach(function(label) {
+        var next = label.nextElementSibling;
+        var anyVisible = false;
+        while (next && !next.getAttribute('style')?.includes('letter-spacing')) {
+            if (next.classList.contains('nav-link') && next.style.display !== 'none') anyVisible = true;
+            next = next.nextElementSibling;
+        }
+        if (!anyVisible) label.style.display = 'none';
+    });
+    // Auto-switch to first accessible tab
+    if (!canAccessTab(currentTab)) {
+        var firstTab = document.querySelector('.nav-link[data-tab][style=""], .nav-link[data-tab]:not([style*="display: none"])');
+        if (firstTab) switchTab(firstTab.getAttribute('data-tab'));
+    }
+    // Show admin name
+    var logo = document.querySelector('.admin-logo');
+    if (logo && yunAdminName) logo.textContent = yunAdminName;
+    // Init permissions checkboxes
+    renderSaPermissionCheckboxes();
+})();
 </script>
 </body>
 </html>

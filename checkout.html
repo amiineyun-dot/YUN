@@ -885,9 +885,7 @@
                     return;
                 }
 
-                // Cooldown
-                var cd = await checkCooldown(phone);
-                if (cd.blocked) { showCooldown(cd.minutesLeft); btn.classList.remove('loading'); return; }
+                // Cooldown — removed per request
 
                 // Price
                 var { data: pricing } = await yunDb.from('wilaya_pricing').select('home_price, post_price').eq('wilaya_code', selectedWilayaCode).single();
@@ -924,12 +922,7 @@
                 }).select().single();
 
                 if (orderError) {
-                    if (orderError.code === '23505') {
-                        alert('An order with this phone was recently placed. Please wait.');
-                        showCooldown(COOLDOWN_HOURS * 60);
-                    } else {
-                        alert('Error placing order. Please try again.');
-                    }
+                    alert('Error placing order. Please try again.');
                     btn.classList.remove('loading'); btn.disabled = false; return;
                 }
 

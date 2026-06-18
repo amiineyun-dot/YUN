@@ -1,8 +1,7 @@
 exports.handler = async function(event) {
     var ZR_BASE = 'https://api.zrexpress.app/api/v1';
-    var ALLOWED = ['/users/profile', '/orders', '/orders/create', '/shipping/calculate', '/shipping/wilayas'];
     var headers = {
-        'Access-Control-Allow-Origin': 'https://sweet-brioche-a912f4.netlify.app',
+        'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
         'Access-Control-Allow-Methods': 'POST, OPTIONS'
     };
@@ -27,9 +26,8 @@ exports.handler = async function(event) {
             return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing apiKey or tenantId' }) };
         }
 
-        var isAllowed = ALLOWED.some(function(p) { return path === p || path.startsWith(p + '/'); });
-        if (!isAllowed) {
-            return { statusCode: 403, headers, body: JSON.stringify({ error: 'Path not allowed' }) };
+        if (!path.startsWith('/')) {
+            return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid path' }) };
         }
 
         var fetchOpts = {
