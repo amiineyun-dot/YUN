@@ -43,12 +43,12 @@
         .nav-link {
             display: flex; align-items: center; gap: 12px;
             padding: 14px 24px;
-            font-size: 0.85rem; color: rgba(255,255,255,0.5);
+            font-size: 0.85rem; color: rgba(255,255,255,0.85);
             border-left: 2px solid transparent;
             transition: all 0.15s; position: relative;
         }
-        .nav-link:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.03); }
-        .nav-link.active { color: white; border-left-color: white; background: rgba(255,255,255,0.04); }
+        .nav-link:hover { color: white; background: rgba(255,255,255,0.06); }
+        .nav-link.active { color: white; border-left-color: white; background: rgba(255,255,255,0.08); }
         .nav-link svg { width: 18px; height: 18px; flex-shrink: 0; }
         .order-badge {
             position: absolute; right: 16px;
@@ -338,9 +338,9 @@
         [data-theme="light"] { background: #f5f5f5; color: #1a1a1a; }
         [data-theme="light"] .admin-sidebar { background: #ffffff; border-right-color: rgba(0,0,0,0.08); }
         [data-theme="light"] .admin-logo { color: #0a0a0a; border-bottom-color: rgba(0,0,0,0.08); }
-        [data-theme="light"] .nav-link { color: rgba(0,0,0,0.5); }
-        [data-theme="light"] .nav-link:hover { color: rgba(0,0,0,0.8); background: rgba(0,0,0,0.03); }
-        [data-theme="light"] .nav-link.active { color: #0a0a0a; border-left-color: #0a0a0a; background: rgba(0,0,0,0.04); }
+        [data-theme="light"] .nav-link { color: rgba(0,0,0,0.7); }
+        [data-theme="light"] .nav-link:hover { color: #0a0a0a; background: rgba(0,0,0,0.04); }
+        [data-theme="light"] .nav-link.active { color: #0a0a0a; border-left-color: #0a0a0a; background: rgba(0,0,0,0.06); }
         [data-theme="light"] .admin-main { color: #1a1a1a; }
         [data-theme="light"] .section-title { color: #0a0a0a; }
         [data-theme="light"] .stat-card { background: #ffffff; border-color: rgba(0,0,0,0.08); }
@@ -1103,6 +1103,19 @@ function switchTab(tab) {
     document.querySelectorAll('[id^="section-"]').forEach(function(el) { el.classList.add('hidden'); });
     document.getElementById('section-' + tab).classList.remove('hidden');
     if (tab === 'orders') loadOrders();
+    if (tab === 'addproduct') {
+        if (!editingProductId) {
+            document.getElementById('productForm').reset();
+            uploadedImages = [];
+            sgImages = [];
+            renderSgPreviews();
+            document.getElementById('imagePreviews').innerHTML = '';
+            document.getElementById('variantRows').innerHTML = '';
+            addVariantRow();
+            addVariantRow();
+            document.getElementById('saveProductBtn').textContent = 'Save Product';
+        }
+    }
     if (tab === 'products') { loadProducts(); loadCatsForProduct(); }
     if (tab === 'hero') loadHero();
     if (tab === 'settings') loadSettings();
@@ -1483,8 +1496,8 @@ async function editProduct(id) {
     rows.innerHTML = '';
     var hasColorVariants = false;
     (vars || []).forEach(function(v) {
-        if (v.color || v.color_hex) hasColorVariants = true;
-        var colorHex = v.color_hex || v.color || '#000000';
+        if ((v.color && v.color !== 'default') || v.color_hex) hasColorVariants = true;
+        var colorHex = (v.color && v.color !== 'default') ? (v.color_hex || v.color) : '#000000';
         var div = document.createElement('div');
         div.className = 'variant-row';
         div.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;align-items:center';
@@ -1810,34 +1823,34 @@ async function saveProduct(e) {
         var variantRows = document.querySelectorAll('#variantRows .variant-row');
         var hasColor = document.getElementById('hasColorToggle') ? document.getElementById('hasColorToggle').checked : true;
         for (var j = 0; j < variantRows.length; j++) {
-            var hexInput = variantRows[j].querySelector('.cp-hex-input');
-            var sizeInput, priceInput, stockInput;
-            if (hasColor && hexInput) {
-                var inputs = variantRows[j].querySelectorAll('input');
-                var vColorHex = hexInput.value;
-                sizeInput = inputs[1]; priceInput = inputs[2]; stockInput = inputs[3];
-                var vSize = sizeInput.value.trim();
-                var vPrice = parseInt(priceInput.value) || price;
-                var vStock = parseInt(stockInput.value) || 0;
-                if (!vSize) continue;
-                await yunDb.from('product_variants').insert({
-                    product_id: product.id, size: vSize || null, color: vColorHex, color_hex: vColorHex,
-                    price: vPrice, stock: vStock,
-                    sku: slug + '-' + vColorHex.replace('#','') + '-' + vSize.toLowerCase().replace(/[^a-z0-9]+/g, '-')
-                });
-            } else {
-                var allInputs = variantRows[j].querySelectorAll('input:not(.cp-hex-input):not([type="hidden"])');
-                sizeInput = allInputs[0]; priceInput = allInputs[1]; stockInput = allInputs[2];
-                var vSize2 = sizeInput.value.trim();
-                var vPrice2 = parseInt(priceInput.value) || price;
-                var vStock2 = parseInt(stockInput.value) || 0;
-                if (!vSize2) continue;
-                await yunDb.from('product_variants').insert({
-                    product_id: product.id, size: vSize2 || null, color: null, color_hex: null,
-                    price: vPrice2, stock: vStock2,
-                    sku: slug + '-' + vSize2.toLowerCase().replace(/[^a-z0-9]+/g, '-')
-                });
+            var row = variantRows[j];
+            var allInputs = row.querySelectorAll('input');
+            var hexInput = row.querySelector('.cp-hex-input');
+            var vColorHex = hexInput ? hexInput.value : null;
+
+            var sizeVal = '', priceVal = '', stockVal = 0;
+            var visibleInputs = [];
+            for (var k = 0; k < allInputs.length; k++) {
+                if (allInputs[k].type === 'hidden' || allInputs[k].classList.contains('cp-hex-input')) continue;
+                visibleInputs.push(allInputs[k]);
             }
+            sizeVal = (visibleInputs[0] || {}).value || '';
+            priceVal = (visibleInputs[1] || {}).value || '';
+            stockVal = (visibleInputs[2] || {}).value || 0;
+            sizeVal = sizeVal.trim();
+            if (!sizeVal) continue;
+
+            var variantData = {
+                product_id: product.id,
+                size: sizeVal,
+                color: hasColor ? vColorHex : 'default',
+                color_hex: hasColor ? vColorHex : null,
+                price: parseInt(priceVal) || price,
+                stock: parseInt(stockVal) || 0,
+                sku: slug + '-' + (hasColor && vColorHex ? vColorHex.replace('#','') + '-' : '') + sizeVal.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+            };
+            var { error: vErr } = await yunDb.from('product_variants').insert(variantData);
+            if (vErr) { console.error('Variant insert error:', vErr); alert('Variant error: ' + vErr.message); }
         }
 
         alert(editingProductId ? 'Product updated!' : 'Product saved!');

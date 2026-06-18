@@ -3,6 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="YUN — Premium Y2K fashion streetwear. Free shipping across Algeria via Zr Express.">
+    <meta name="theme-color" content="#0a0a0a">
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/dcj7lqvph/image/upload/q_auto/f_auto/v1781461884/IMG_20260531_223119_1_ebk1xo.png">
+    <link rel="apple-touch-icon" href="https://res.cloudinary.com/dcj7lqvph/image/upload/q_auto/f_auto/v1781461884/IMG_20260531_223119_1_ebk1xo.png">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="YUN — Y2K Fashion Algeria">
+    <meta property="og:description" content="Premium Y2K fashion streetwear. Free shipping across Algeria.">
+    <meta property="og:image" content="https://res.cloudinary.com/dcj7lqvph/image/upload/q_auto/f_auto/v1781461884/IMG_20260531_223119_1_ebk1xo.png">
+    <meta property="og:url" content="https://sweet-brioche-a912f4.netlify.app">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="YUN — Y2K Fashion Algeria">
+    <meta name="twitter:image" content="https://res.cloudinary.com/dcj7lqvph/image/upload/q_auto/f_auto/v1781461884/IMG_20260531_223119_1_ebk1xo.png">
     <title>YUN — Product</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -121,6 +133,20 @@
         /* Wepnest */
         .wepnest-credits { text-align: center; padding: 20px; font-family: var(--font-caption); font-size: 0.6rem; color: rgba(255,255,255,0.25); letter-spacing: 0.1em; }
         .wepnest-credits a { color: rgba(255,255,255,0.4); text-decoration: underline; }
+
+        /* Related Products Strip */
+        .related-strip { padding: 48px 20px calc(80px + env(safe-area-inset-bottom)); }
+        .related-title { font-family: var(--font-heading); font-weight: 800; font-style: italic; font-size: 1.3rem; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 20px; color: var(--text-primary); }
+        .related-scroll { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 8px; }
+        .related-scroll::-webkit-scrollbar { display: none; }
+        .related-card { flex: 0 0 160px; scroll-snap-align: start; cursor: pointer; text-decoration: none; color: inherit; }
+        .related-card-img { width: 100%; aspect-ratio: 3/4; border-radius: 12px; overflow: hidden; background: rgba(255,255,255,0.04); margin-bottom: 10px; position: relative; }
+        .related-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+        .related-card:hover .related-card-img img { transform: scale(1.05); }
+        .related-card-name { font-family: var(--font-heading); font-weight: 800; font-style: italic; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .related-card-price { font-family: var(--font-caption); font-size: 0.65rem; color: var(--text-secondary); }
+        .related-card-price .sale { color: var(--accent); }
+        @media (min-width: 769px) { .related-strip { max-width: 1100px; margin: 0 auto; padding: 48px 48px 60px; } .related-card { flex: 0 0 200px; } }
 
         /* Bottom nav */
         .bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; background: rgba(10,10,10,0.92); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.08); padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); }
@@ -317,6 +343,14 @@
         </div><!-- .product-info -->
     </div>
 
+    <!-- Related Products -->
+    <section class="related-strip" id="relatedStrip" style="display:none">
+        <div class="related-strip-inner">
+            <div class="related-title">YOU MAY ALSO LIKE</div>
+            <div class="related-scroll" id="relatedScroll"></div>
+        </div>
+    </section>
+
     <div class="wepnest-credits">Made in <a href="https://instagram.com/wepnest" target="_blank">Wepnest</a> | &copy; 2026 YUN</div>
 
     <nav class="bottom-nav">
@@ -479,8 +513,9 @@
         document.addEventListener('click',function(e){var l=e.target.closest('a[href]');if(!l)return;var h=l.getAttribute('href');if(!h||h.startsWith('#')||h.startsWith('http')||h.startsWith('mailto')||h.startsWith('tel')||l.target==='_blank')return;e.preventDefault();pt.style.display='flex';pt.style.transition='none';pt.style.transform='translateY(100%)';requestAnimationFrame(function(){requestAnimationFrame(function(){pt.style.transition='transform 0.7s cubic-bezier(0.76,0,0.24,1)';pt.style.transform='translateY(0%)';setTimeout(function(){window.location.href=h;},750);});});});
     })();
     </script>
-<script>
-(function(){
+    <script>
+    function escapeHtml(t){if(!t)return'';return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');}
+    (function(){
     var slug = new URLSearchParams(window.location.search).get('slug');
     if (!slug) { document.getElementById('pName').textContent='Product not found'; return; }
     if (!yunDb) { document.getElementById('pName').textContent='Product not found'; return; }
@@ -536,7 +571,7 @@
         // Collect unique colors
         var colorMap={};
         variants.forEach(function(v){
-            var c=v.color||'Default';
+            var c=(v.color&&v.color!=='default')?v.color:'Default';
             if(!colorMap[c]) colorMap[c]=[];
             colorMap[c].push(v);
         });
@@ -597,10 +632,11 @@
             updateStock();
         });
 
-        // Select first available variant
-        var firstBtn=document.querySelector('.size-btn:not(.out)');
-        if(firstBtn) _selVariant=variants.find(function(v){return v.id===firstBtn.getAttribute('data-vid');})||null;
-        updateStock();
+        // Don't auto-select - wait for user to click a size
+        _selVariant = null;
+        document.getElementById('stockBadge').innerHTML = '';
+        document.getElementById('qtyValue').textContent = '1';
+        document.getElementById('qtyPlus').setAttribute('data-max', '1');
 
         function updateStock(){
             var v=_selVariant;var el=document.getElementById('stockBadge');var addBtn=document.getElementById('addToCartBtn');
@@ -615,6 +651,38 @@
         }
 
         if(typeof fbq!=='undefined') fbq('track','ViewContent',{content_ids:[product.slug],content_name:product.name,content_type:'product',value:cp,currency:'DZD'});
+
+        // Load related products (same category, excluding current)
+        yunDb.from('products').select('*').eq('category',product.category).neq('id',product.id).limit(8).then(function(res){
+            var prods=res.data||[];
+            if(!prods.length){
+                return yunDb.from('products').select('*').neq('id',product.id).limit(8);
+            }
+            return res;
+        }).then(function(res){
+            var prods=res.data||[];
+            if(!prods.length)return;
+            var strip=document.getElementById('relatedStrip');
+            var scroll=document.getElementById('relatedScroll');
+            strip.style.display='';
+
+            function renderRelated(prod){
+                return yunDb.from('product_images').select('cloudinary_url').eq('product_id',prod.id).eq('is_primary',true).limit(1).then(function(r){
+                    var img=r.data&&r.data[0]?r.data[0].cloudinary_url:'';
+                    var cp2=prod.sale_price&&prod.sale_price<prod.base_price?prod.sale_price:prod.base_price;
+                    var card=document.createElement('a');
+                    card.className='related-card';
+                    card.href='product.html?slug='+prod.slug;
+                    card.innerHTML='<div class="related-card-img"><img src="'+optImg(img,400)+'" alt="'+escapeHtml(prod.name)+'" loading="lazy"></div><div class="related-card-name">'+escapeHtml(prod.name)+'</div><div class="related-card-price">'+(prod.sale_price&&prod.sale_price<prod.base_price?'<span class="sale">'+fmt(cp2)+'</span>':' '+fmt(cp2))+'</div>';
+                    return card;
+                });
+            }
+
+            var promises=prods.map(renderRelated);
+            Promise.all(promises).then(function(cards){
+                cards.forEach(function(c){scroll.appendChild(c);});
+            });
+        });
     }).catch(function(){document.getElementById('pName').textContent='Product not found';});
 })();
 </script>
