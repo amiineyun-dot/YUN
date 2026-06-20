@@ -1,5 +1,5 @@
-// YUN Admin Service Worker
-var CACHE_NAME = 'yun-admin-v1';
+// YUN Admin Service Worker v2
+var CACHE_NAME = 'yun-admin-v2';
 var urlsToCache = [
   '/admin/index.html',
   '/admin/manifest.json'
@@ -39,19 +39,20 @@ self.addEventListener('fetch', function(event) {
 
 // Push notification handler
 self.addEventListener('push', function(event) {
-  var data = { title: 'YUN Admin', body: 'New notification', icon: '/admin/icon-192.png' };
+  var data = { title: 'YUN Admin', body: 'New notification' };
   if (event.data) {
     try { data = event.data.json(); } catch(e) { data.body = event.data.text(); }
   }
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
-      icon: data.icon || 'https://res.cloudinary.com/dcj7lqvph/image/upload/q_auto,f_auto,w_192/v1781461884/IMG_20260531_223119_1_ebk1xo.png',
+      icon: 'https://res.cloudinary.com/dcj7lqvph/image/upload/q_auto,f_auto,w_192/v1781461884/IMG_20260531_223119_1_ebk1xo.png',
       badge: 'https://res.cloudinary.com/dcj7lqvph/image/upload/q_auto,f_auto,w_96/v1781461884/IMG_20260531_223119_1_ebk1xo.png',
       vibrate: [200, 100, 200],
-      tag: 'yun-notification',
+      tag: data.tag || 'yun-notification',
       renotify: true,
-      data: { url: '/admin/index.html' }
+      requireInteraction: true,
+      data: { url: data.url || '/admin/index.html' }
     })
   );
 });
@@ -59,6 +60,7 @@ self.addEventListener('push', function(event) {
 // Notification click handler
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
+  var url = (event.notification.data && event.notification.data.url) || '/admin/index.html';
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
       for (var i = 0; i < clientList.length; i++) {
@@ -68,7 +70,7 @@ self.addEventListener('notificationclick', function(event) {
         }
       }
       if (clients.openWindow) {
-        return clients.openWindow('/admin/index.html');
+        return clients.openWindow(url);
       }
     })
   );

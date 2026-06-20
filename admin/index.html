@@ -302,15 +302,36 @@
         }
         .admin-toast.show { opacity: 1; transform: translateY(0); }
 
+        /* Mobile Header */
+        .mobile-header { display: none; position: fixed; top: 0; left: 0; right: 0; height: 56px; background: #0f0f0f; border-bottom: 1px solid rgba(255,255,255,0.08); z-index: 150; align-items: center; justify-content: space-between; padding: 0 16px; }
+        .mobile-menu-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: white; border-radius: 8px; }
+        .mobile-menu-btn:active { background: rgba(255,255,255,0.1); }
+        .mobile-header-title { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 300; color: white; letter-spacing: 0.2em; }
+        .mobile-install-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: #e8e0d0; border-radius: 8px; }
+        .mobile-install-btn:active { background: rgba(232,224,208,0.15); }
+
+        /* PWA Install Banner */
+        .pwa-install-banner { position: fixed; bottom: 20px; right: 20px; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 16px 20px; z-index: 200; display: none; align-items: center; gap: 12px; max-width: 320px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+        .pwa-install-banner.show { display: flex; }
+        .pwa-install-text { flex: 1; font-size: 0.8rem; color: rgba(255,255,255,0.8); }
+        .pwa-install-text strong { display: block; font-size: 0.9rem; color: white; margin-bottom: 4px; }
+        .pwa-install-btn { background: white; color: #0a0a0a; padding: 8px 16px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; white-space: nowrap; }
+        .pwa-install-btn:active { opacity: 0.8; }
+        .pwa-install-close { color: rgba(255,255,255,0.4); font-size: 1.2rem; padding: 4px; }
+
         @media (max-width: 768px) {
-            .admin-sidebar { width: 60px; }
+            .admin-sidebar { width: 60px; overflow: hidden; }
             .admin-sidebar .admin-logo { font-size: 1rem; padding: 0 8px 16px; letter-spacing: 0.1em; }
-            .nav-link span { display: none; }
-            .nav-link { justify-content: center; padding: 14px 8px; }
-            .admin-main { margin-left: 60px; padding: 20px; }
+            .admin-sidebar .nav-link span { display: none; }
+            .admin-sidebar .nav-link { justify-content: center; padding: 14px 8px; }
+            .admin-main { margin-left: 60px; padding: 16px; padding-top: 70px; }
             .stats-row { grid-template-columns: repeat(2, 1fr); }
             .charts-grid { grid-template-columns: 1fr; }
             .form-row { grid-template-columns: 1fr; }
+            .mobile-header { display: flex !important; }
+            .settings-card { padding: 16px; }
+            table { font-size: 0.75rem; }
+            th, td { padding: 8px 6px; }
         }
         select, .form-select, td .status-select, .sort-select {
             background: #1a1a1a !important;
@@ -627,7 +648,7 @@ var yunAdminName = '';
             var decoded = atob(auth).split(':');
             if (decoded[0] === 'admin' && decoded[1] === 'Yun@2026') {
                 yunIsAdmin = true;
-                yunPermissions = ['orders','products','addproduct','categories','hero','homepage','about','productspage','settings','shipping','analytics','subadmins'];
+                yunPermissions = ['orders','products','addproduct','categories','hero','homepage','productspage','settings','shipping','analytics','subadmins'];
                 yunAdminName = 'Admin';
             } else {
                 localStorage.removeItem('yun_admin_auth');
@@ -644,6 +665,19 @@ var yunAdminName = '';
 </script>
 
 <div class="admin-layout">
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <span class="mobile-header-title">YUN Admin</span>
+        <div style="display:flex;gap:8px;align-items:center">
+            <button class="mobile-install-btn" id="mobileNotifBtn" onclick="enableNotifications()" style="display:none;color:#ffc800">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+            </button>
+            <button class="mobile-install-btn" id="mobileInstallBtn" onclick="installPWA()" style="display:none">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </button>
+        </div>
+    </div>
+
     <aside class="admin-sidebar">
         <div class="admin-logo">YUN</div>
         <div class="nav-link active" data-tab="orders" onclick="switchTab('orders')">
@@ -674,10 +708,6 @@ var yunAdminName = '';
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             <span>Homepage</span>
         </div>
-        <div class="nav-link" data-tab="about" onclick="switchTab('about')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-            <span>About Page</span>
-        </div>
         <div class="nav-link" data-tab="productspage" onclick="switchTab('productspage')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
             <span>Products Page</span>
@@ -702,6 +732,10 @@ var yunAdminName = '';
             <span>Sub-Admins</span>
         </div>
         <div style="margin-top:auto;padding:16px 24px;border-top:1px solid rgba(255,255,255,0.08)">
+            <div class="nav-link" id="notifBtn" onclick="enableNotifications()" style="border-left:none;color:rgba(255,200,0,0.8);display:none">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+                <span>Enable Notifications</span>
+            </div>
             <div class="nav-link" onclick="localStorage.removeItem('yun_admin_auth');window.location.href='login.html'" style="border-left:none;color:rgba(255,50,50,0.6)">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                 <span>Sign Out</span>
@@ -713,6 +747,17 @@ var yunAdminName = '';
         <!-- ===== SECTION: ORDERS ===== -->
         <div id="section-orders">
             <div class="section-title">Orders</div>
+            <!-- Notification Enable Banner -->
+            <div id="notifBanner" style="display:none;background:linear-gradient(135deg,rgba(255,200,0,0.12),rgba(255,200,0,0.04));border:1px solid rgba(255,200,0,0.25);border-radius:12px;padding:16px 20px;margin-bottom:20px;align-items:center;gap:14px">
+                <div style="width:42px;height:42px;background:rgba(255,200,0,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffc800" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+                </div>
+                <div style="flex:1">
+                    <div style="font-weight:600;color:white;font-size:0.9rem;margin-bottom:3px">Enable Notifications</div>
+                    <div style="font-size:0.78rem;color:rgba(255,255,255,0.5)">Get notified instantly when a new order arrives</div>
+                </div>
+                <button onclick="enableNotifications()" style="background:#ffc800;color:#0a0a0a;padding:10px 20px;border-radius:8px;font-weight:600;font-size:0.82rem;white-space:nowrap;flex-shrink:0">Enable</button>
+            </div>
             <div class="stats-row" id="statsRow"></div>
             <div class="top-bar">
                 <div class="filter-bar" id="orderFilters">
@@ -1036,10 +1081,6 @@ var yunAdminName = '';
                     <div id="analyticsHomepage" style="margin-top:12px"><div class="loading">Loading...</div></div>
                 </div>
                 <div class="chart-card" style="margin:0">
-                    <h3>About Content</h3>
-                    <div id="analyticsAbout" style="margin-top:12px"><div class="loading">Loading...</div></div>
-                </div>
-                <div class="chart-card" style="margin:0">
                     <h3>Categories</h3>
                     <div id="analyticsCategories" style="margin-top:12px"><div class="loading">Loading...</div></div>
                 </div>
@@ -1052,17 +1093,6 @@ var yunAdminName = '';
                     <div id="analyticsSettings" style="margin-top:12px"><div class="loading">Loading...</div></div>
                 </div>
             </div>
-        </div>
-
-        <!-- ===== SECTION: ABOUT CONTENT ===== -->
-        <div id="section-about" class="hidden">
-            <div class="section-title">About Content</div>
-            <div class="filter-bar" style="margin-bottom:24px">
-                <button class="filter-pill active" data-lang="en" onclick="switchAboutLang(this,'en')">EN</button>
-                <button class="filter-pill" data-lang="ar" onclick="switchAboutLang(this,'ar')">AR</button>
-                <button class="filter-pill" data-lang="fr" onclick="switchAboutLang(this,'fr')">FR</button>
-            </div>
-            <div id="aboutContent"><div class="loading">Loading about content...</div></div>
         </div>
 
         <!-- ===== SECTION: HOMEPAGE ===== -->
@@ -1089,7 +1119,7 @@ var yunAdminName = '';
                     </div>
                     <div>
                         <label class="form-label">Title</label>
-                        <input type="text" id="ppTitle" class="form-input" placeholder="Y2K COLLECTION">
+                        <input type="text" id="ppTitle" class="form-input" placeholder="COLLECTION">
                     </div>
                     <div>
                         <button class="btn-admin" onclick="saveProductsPage()">Save</button>
@@ -1173,7 +1203,7 @@ var pendingHeroVideo = null;
 // ===================== TAB SWITCHING =====================
 var TAB_LABELS = {
     orders:'Orders', products:'Products', addproduct:'Add Product', categories:'Categories',
-    hero:'Hero Media', homepage:'Homepage', about:'About Page', productspage:'Products Page',
+    hero:'Hero Media', homepage:'Homepage', productspage:'Products Page',
     settings:'Zr Express API', shipping:'Shipping Prices', analytics:'Analytics', subadmins:'Sub-Admins'
 };
 
@@ -1211,7 +1241,6 @@ function switchTab(tab) {
     if (tab === 'categories') loadCategories();
     if (tab === 'analytics') loadAnalytics();
     if (tab === 'shipping') loadShippingPrices();
-    if (tab === 'about') loadAboutContent();
     if (tab === 'homepage') loadHomepageContent();
     if (tab === 'productspage') loadProductsPage();
     if (tab === 'subadmins') { loadSubAdmins(); renderSaPermissionCheckboxes(); }
@@ -1264,12 +1293,15 @@ function checkNewOrders() {
             if (res.count && res.count > 0) {
                 playNotificationSound();
                 showToast('🔔 ' + res.count + ' new order(s) received!');
+                // Browser notification (works when tab is open)
                 if (window.Notification && Notification.permission === 'granted') {
                     new Notification('YUN — New Order!', {
                         body: res.count + ' new order(s) received',
                         icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🔔</text></svg>'
                     });
                 }
+                // Push notification (works even when app is closed/background)
+                sendPushNotification('YUN — New Order!', res.count + ' new order(s) received', '/admin/index.html');
                 var badge = document.getElementById('orderNotificationBadge');
                 if (badge) {
                     var current = parseInt(badge.textContent) || 0;
@@ -1400,8 +1432,29 @@ async function printOrderQuick(orderId) {
 
 async function updateOrderStatus(id, status) {
     await yunDb.from('orders').update({ status: status }).eq('id', id);
+    var order = ordersCache[id];
+    if (order && typeof fbq === 'function') {
+        if (status === 'confirmed') {
+            fbq('track', 'Purchase', {
+                value: order.total || 0, currency: 'DZD',
+                eventID: order.meta_event_id || id,
+                content_type: 'product', status: 'confirmed'
+            });
+        } else if (status === 'cancelled') {
+            fbq('trackCustom', 'OrderCancelled', {
+                orderId: id, value: order.total || 0, currency: 'DZD',
+                eventID: order.meta_event_id || id
+            });
+        }
+    }
     if (status === 'cancelled') {
         await yunDb.rpc('restore_stock_on_cancel', { p_order_id: id });
+        if (order && order.meta_event_id && typeof fbq === 'function') {
+            fbq('track', 'Purchase', {
+                value: 0, currency: 'DZD',
+                eventID: order.meta_event_id + '_cancel'
+            });
+        }
     }
     loadOrders();
 }
@@ -2653,20 +2706,6 @@ async function loadAnalytics() {
     } else { hpHtml = '<div style="font-size:0.75rem;color:rgba(255,255,255,0.3)">No homepage content</div>'; }
     document.getElementById('analyticsHomepage').innerHTML = hpHtml;
 
-    // About content
-    var { data: aboutContent } = await yunDb.from('site_content').select('lang, section, content');
-    var abHtml = '';
-    if (aboutContent && aboutContent.length) {
-        var abGrouped = {};
-        aboutContent.forEach(function(r) { if (!abGrouped[r.section]) abGrouped[r.section] = true; });
-        Object.keys(abGrouped).forEach(function(s) {
-            abHtml += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05)">' +
-                '<span style="font-size:0.7rem;color:rgba(255,255,255,0.5);font-family:\'Space Mono\',monospace">' + s + '</span>' +
-                '<button class="btn-admin-ghost btn-sm" onclick="switchTab(\'about\')">✏️</button></div>';
-        });
-    } else { abHtml = '<div style="font-size:0.75rem;color:rgba(255,255,255,0.3)">No about content</div>'; }
-    document.getElementById('analyticsAbout').innerHTML = abHtml;
-
     // Categories
     var { data: cats } = await yunDb.from('categories').select('id, name');
     var catHtml = '';
@@ -2859,108 +2898,6 @@ async function deleteCategory(id) {
     loadCategories();
 }
 
-// ===================== ABOUT CONTENT =====================
-var aboutLang = 'en';
-
-var aboutFields = [
-    { section: 'about_hero', fields: [
-        { key: 'title', label: 'Hero Title' },
-        { key: 'subtitle', label: 'Hero Subtitle' }
-    ]},
-    { section: 'about_story', fields: [
-        { key: 'heading', label: 'Story Heading' },
-        { key: 'paragraph1', label: 'Paragraph 1', type: 'textarea' },
-        { key: 'paragraph2', label: 'Paragraph 2', type: 'textarea' },
-        { key: 'tagline', label: 'Tagline' }
-    ]},
-    { section: 'about_values', fields: [
-        { key: 'v1_title', label: 'Value 1 Title' },
-        { key: 'v1_desc', label: 'Value 1 Description', type: 'textarea' },
-        { key: 'v2_title', label: 'Value 2 Title' },
-        { key: 'v2_desc', label: 'Value 2 Description', type: 'textarea' },
-        { key: 'v3_title', label: 'Value 3 Title' },
-        { key: 'v3_desc', label: 'Value 3 Description', type: 'textarea' }
-    ]},
-    { section: 'about_contact', fields: [
-        { key: 'phone', label: 'Phone' },
-        { key: 'email', label: 'Tawssil (Zr Express)' },
-        { key: 'instagram', label: 'Instagram' },
-        { key: 'address', label: 'Address' },
-        { key: 'hours', label: 'Working Hours' }
-    ]}
-];
-
-function switchAboutLang(el, lang) {
-    document.querySelectorAll('#section-about .filter-pill').forEach(function(b) { b.classList.remove('active'); });
-    el.classList.add('active');
-    aboutLang = lang;
-    loadAboutContent();
-}
-
-async function loadAboutContent() {
-    var container = document.getElementById('aboutContent');
-    container.innerHTML = '<div class="loading">Loading about content...</div>';
-    try {
-        var { data: rows, error } = await yunDb.from('site_content').select('*').eq('lang', aboutLang);
-        if (error) throw error;
-
-        var map = {};
-        (rows || []).forEach(function(r) {
-            map[r.section + '||' + r.field] = r.value;
-        });
-
-        var html = '';
-        aboutFields.forEach(function(group) {
-            html += '<div class="settings-card" style="margin-bottom:20px;max-width:700px">';
-            html += '<h3>' + group.section.replace('about_', '').replace(/^\w/, function(c) { return c.toUpperCase(); }) + '</h3>';
-            group.fields.forEach(function(f) {
-                var val = map[group.section + '||' + f.key] || '';
-                var escaped = val.replace(/"/g, '&quot;');
-                if (f.type === 'textarea') {
-                    html += '<div class="form-group"><label class="form-label">' + f.label + '</label>';
-                    html += '<textarea class="form-textarea" id="af_' + group.section + '_' + f.key + '" rows="3">' + val.replace(/</g, '&lt;') + '</textarea></div>';
-                } else {
-                    html += '<div class="form-group"><label class="form-label">' + f.label + '</label>';
-                    html += '<input type="text" class="form-input" id="af_' + group.section + '_' + f.key + '" value="' + escaped + '"></div>';
-                }
-            });
-            html += '</div>';
-        });
-
-        html += '<div style="margin-top:8px"><button class="btn-admin" onclick="saveAboutContent()" id="saveAboutBtn">Save Changes</button></div>';
-        container.innerHTML = html;
-    } catch (err) {
-        container.innerHTML = '<div class="empty">Error: ' + err.message + '</div>';
-    }
-}
-
-async function saveAboutContent() {
-    var btn = document.getElementById('saveAboutBtn');
-    btn.textContent = 'Saving...';
-    btn.style.opacity = '0.6';
-
-    try {
-        var rows = [];
-        aboutFields.forEach(function(group) {
-            group.fields.forEach(function(f) {
-                var el = document.getElementById('af_' + group.section + '_' + f.key);
-                if (el) {
-                    rows.push({ section: group.section, field: f.key, lang: aboutLang, value: el.value.trim(), sort_order: 0 });
-                }
-            });
-        });
-
-        var { error } = await yunDb.from('site_content').upsert(rows, { onConflict: 'section,field,lang' });
-        if (error) throw error;
-        showToast('✓ About content saved!');
-    } catch (err) {
-        alert('Error saving: ' + err.message);
-    }
-
-    btn.textContent = 'Save Changes';
-    btn.style.opacity = '1';
-}
-
 // ===================== HOMEPAGE CONTENT =====================
 var homepageLang = 'en';
 
@@ -3082,20 +3019,102 @@ async function saveHomepageContent() {
     btn.textContent = 'Save Changes';
     btn.style.opacity = '1';
 }
+// ===================== PUSH NOTIFICATIONS =====================
+var VAPID_PUBLIC_KEY = 'NPgx8b0AeT22n48EXSYdT0XkRpSrxP9WQWVP-aUXCuw';
+var PUSH_FUNCTION_URL = '/.netlify/functions/push-send';
+
+function urlBase64ToUint8Array(base64String) {
+    var padding = '='.repeat((4 - base64String.length % 4) % 4);
+    var base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    var rawData = window.atob(base64);
+    var outputArray = new Uint8Array(rawData.length);
+    for (var i = 0; i < rawData.length; ++i) { outputArray[i] = rawData.charCodeAt(i); }
+    return outputArray;
+}
+
+async function subscribeToPush() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    try {
+        var reg = await navigator.serviceWorker.ready;
+        var existing = await reg.pushManager.getSubscription();
+        if (existing) { await savePushSubscription(existing); return; }
+        var sub = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+        });
+        await savePushSubscription(sub);
+    } catch(e) { console.error('Push subscribe error:', e); }
+}
+
+async function savePushSubscription(sub) {
+    var json = sub.toJSON();
+    try {
+        await yunDb.from('push_subscriptions').upsert({
+            endpoint: json.endpoint,
+            p256dh: json.keys.p256dh,
+            auth: json.keys.auth,
+            user_agent: navigator.userAgent
+        }, { onConflict: 'endpoint' });
+    } catch(e) { console.error('Save subscription error:', e); }
+}
+
+async function sendPushNotification(title, body, url) {
+    try {
+        var { data: subs } = await yunDb.from('push_subscriptions').select('endpoint, p256dh, auth');
+        if (!subs || !subs.length) return;
+        await fetch(PUSH_FUNCTION_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: title, body: body, url: url || '/admin/index.html', subscriptions: subs })
+        });
+    } catch(e) { console.error('Send push error:', e); }
+}
+
+// iOS needs user gesture to request notification permission
+async function enableNotifications() {
+    if (!window.Notification) { alert('Notifications not supported on this device'); return; }
+    var perm = await Notification.requestPermission();
+    updateNotifButton(perm);
+    if (perm === 'granted') {
+        showToast('✓ Notifications enabled!');
+        subscribeToPush();
+    }
+}
+
+function updateNotifButton(perm) {
+    var sidebarBtn = document.getElementById('notifBtn');
+    var mobBtn = document.getElementById('mobileNotifBtn');
+    var banner = document.getElementById('notifBanner');
+    if (perm === 'granted') {
+        if (sidebarBtn) sidebarBtn.style.display = 'none';
+        if (mobBtn) mobBtn.style.display = 'none';
+        if (banner) banner.style.display = 'none';
+    } else {
+        if (sidebarBtn) sidebarBtn.style.display = 'flex';
+        if (mobBtn) mobBtn.style.display = 'flex';
+        if (banner) banner.style.display = 'flex';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     loadOrders();
 
-    if (window.Notification && Notification.permission === 'default') {
-        Notification.requestPermission();
+    // Show notification button if needed
+    if (window.Notification) {
+        updateNotifButton(Notification.permission);
     }
 
     localStorage.setItem('yun_last_order_check', new Date().toISOString());
     setInterval(checkNewOrders, 15000);
 
-    // Register Service Worker for PWA
+    // Register Service Worker + subscribe to push
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').then(function(reg) {
             console.log('SW registered:', reg.scope);
+            // Only auto-subscribe if permission already granted
+            if (window.Notification && Notification.permission === 'granted') {
+                subscribeToPush();
+            }
         }).catch(function(err) {
             console.log('SW registration failed:', err);
         });
@@ -3245,7 +3264,7 @@ function printOrder() {
 
 // ===================== SUB-ADMINS =====================
 var saPermissions = [
-    'orders','products','addproduct','categories','hero','homepage','about','productspage','settings','shipping','analytics'
+    'orders','products','addproduct','categories','hero','homepage','productspage','settings','shipping','analytics'
 ];
 
 function renderSaPermissionCheckboxes() {
@@ -3388,6 +3407,53 @@ async function deleteSubAdmin(id) {
     // Init permissions checkboxes
     renderSaPermissionCheckboxes();
 })();
+</script>
+
+<!-- PWA Install Banner -->
+<div class="pwa-install-banner" id="pwaInstallBanner">
+    <div class="pwa-install-text">
+        <strong>Install YUN Admin</strong>
+        Add to home screen for quick access
+    </div>
+    <button class="pwa-install-btn" onclick="installPWA()">Install</button>
+    <button class="pwa-install-close" onclick="dismissInstall()">&times;</button>
+</div>
+
+<script>
+// PWA Install
+var deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    // Show install banner if not dismissed
+    if (!localStorage.getItem('yun_pwa_install_dismissed')) {
+        document.getElementById('pwaInstallBanner').classList.add('show');
+    }
+    // Show mobile install button
+    var mobBtn = document.getElementById('mobileInstallBtn');
+    if (mobBtn) mobBtn.style.display = 'flex';
+});
+
+function installPWA() {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function(choice) {
+        if (choice.outcome === 'accepted') {
+            document.getElementById('pwaInstallBanner').classList.remove('show');
+        }
+        deferredPrompt = null;
+    });
+}
+
+function dismissInstall() {
+    document.getElementById('pwaInstallBanner').classList.remove('show');
+    localStorage.setItem('yun_pwa_install_dismissed', '1');
+}
+
+window.addEventListener('appinstalled', function() {
+    document.getElementById('pwaInstallBanner').classList.remove('show');
+    deferredPrompt = null;
+});
 </script>
 </body>
 </html>

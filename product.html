@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="YUN — Premium Y2K fashion streetwear. Free shipping across Algeria via Zr Express.">
+    <meta name="description" content="YUN — Premium fashion streetwear. Free shipping across Algeria via Zr Express.">
     <meta name="theme-color" content="#0a0a0a">
     <link rel="icon" type="image/png" href="https://res.cloudinary.com/dcj7lqvph/image/upload/q_auto/f_auto/v1781461884/IMG_20260531_223119_1_ebk1xo.png">
     <link rel="apple-touch-icon" href="https://res.cloudinary.com/dcj7lqvph/image/upload/q_auto/f_auto/v1781461884/IMG_20260531_223119_1_ebk1xo.png">
@@ -155,7 +155,7 @@
         .bn-item.active, .bn-item:hover { color: white; }
         .bn-item svg { width: 22px; height: 22px; }
         .bn-badge { position: absolute; top: -4px; right: -8px; background: white; color: #0a0a0a; font-size: 0.5rem; font-weight: 700; min-width: 14px; height: 14px; border-radius: 7px; display: none; align-items: center; justify-content: center; padding: 0 3px; }
-        @media (max-width: 768px) { .bottom-nav { display: block; } .navbar { width: calc(100% - 40px); max-width: 360px; padding: 8px 16px; } .navbar-links { display: none; } .navbar-icons button:not(.hamburger) { display: none; } .hamburger { display: flex; } .thumbs-row { display: none; } }
+        @media (max-width: 768px) { .bottom-nav { display: block; } .navbar { width: calc(100% - 40px); max-width: 360px; padding: 8px 16px; } .navbar-links { display: none; } .navbar-icons button:not(.hamburger) { display: none; } .hamburger { display: flex; } .img-arrow { display: none !important; } .thumbs-row { display: flex; gap: 6px; padding: 0 4px; margin-bottom: 16px; } .thumb { width: 56px; height: 56px; } }
 
         @media (min-width: 769px) {
             .product-page { display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; max-width: 1100px; padding: 100px 48px 60px; align-items: start; }
@@ -235,7 +235,6 @@
         <div class="navbar-links">
             <a href="index.html">Home</a>
             <a href="products.html">Products</a>
-            <a href="about.html">About</a>
         </div>
         <div class="navbar-icons">
             <div id="langSwitcher"></div>
@@ -251,7 +250,6 @@
         <button class="mobile-menu-close" aria-label="Close"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         <a href="index.html">Home</a>
         <a href="products.html">Products</a>
-        <a href="about.html">About</a>
     </div>
 
     <div class="product-page">
@@ -444,10 +442,29 @@
         (function loop(){ cx+=(tx-cx)*0.08; cy+=(ty-cy)*0.08; img.style.transform='translate('+cx+'px,'+cy+'px) scale(1.03)'; requestAnimationFrame(loop); })();
         wrap.addEventListener('mousemove', function(e){ var r=wrap.getBoundingClientRect(); tx=((e.clientX-r.left)/r.width-0.5)*-12; ty=((e.clientY-r.top)/r.height-0.5)*-12; });
         wrap.addEventListener('mouseleave', function(){ tx=0; ty=0; });
-        var drag = false;
-        wrap.addEventListener('touchstart', function(){ drag=true; }, {passive:true});
-        wrap.addEventListener('touchmove', function(e){ if(!drag)return; var r=wrap.getBoundingClientRect(); tx=Math.max(-15,Math.min(15,((e.touches[0].clientX-r.left)/r.width-0.5)*-25)); ty=Math.max(-15,Math.min(15,((e.touches[0].clientY-r.top)/r.height-0.5)*-25)); }, {passive:true});
-        wrap.addEventListener('touchend', function(){ drag=false; tx=0; ty=0; }, {passive:true});
+
+        // Swipe to change image (mobile)
+        var swipeX = 0, swipeStartX = 0, swipeStartY = 0, swiping = false;
+        wrap.addEventListener('touchstart', function(e) {
+            swipeStartX = e.touches[0].clientX;
+            swipeStartY = e.touches[0].clientY;
+            swiping = true;
+        }, {passive: true});
+        wrap.addEventListener('touchmove', function(e) {
+            if (!swiping) return;
+            var dx = e.touches[0].clientX - swipeStartX;
+            var dy = e.touches[0].clientY - swipeStartY;
+            if (Math.abs(dy) > Math.abs(dx)) { swiping = false; return; }
+            swipeX = dx;
+        }, {passive: true});
+        wrap.addEventListener('touchend', function() {
+            if (swiping && Math.abs(swipeX) > 40) {
+                if (swipeX < 0) goImg(_idx + 1);
+                else goImg(_idx - 1);
+            }
+            swipeX = 0;
+            swiping = false;
+        }, {passive: true});
     }
 
     // Selected variant state

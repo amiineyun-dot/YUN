@@ -256,7 +256,7 @@
             var p = document.getElementById('password').value;
 
             if (u === ADMIN_USER && p === ADMIN_PASS) {
-                var auth = { isAdmin: true, name: 'Admin', permissions: ['orders','products','addproduct','categories','hero','homepage','about','productspage','settings','shipping','analytics','subadmins'] };
+                var auth = { isAdmin: true, name: 'Admin', permissions: ['orders','products','addproduct','categories','hero','homepage','productspage','settings','shipping','analytics','subadmins'] };
                 localStorage.setItem('yun_admin_auth', JSON.stringify(auth));
                 window.location.href = 'index.html';
             } else {
