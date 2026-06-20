@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta name="theme-color" content="#0a0a0a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -17,7 +20,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #0a0a0a; color: rgba(255,255,255,0.75); font-family: 'Inter', sans-serif; margin: 0; -webkit-font-smoothing: antialiased; }
+        html { overflow-x: hidden; }
+        body { background: #0a0a0a; color: rgba(255,255,255,0.75); font-family: 'Inter', sans-serif; margin: 0; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
         a { text-decoration: none; color: inherit; }
         button { border: none; background: none; cursor: pointer; font-family: inherit; font-size: inherit; }
         input, select, textarea { font-family: inherit; outline: none; }
@@ -31,6 +35,7 @@
             position: fixed; top: 0; left: 0; height: 100vh;
             display: flex; flex-direction: column;
             padding-top: 24px; z-index: 100;
+            overflow-y: auto; overflow-x: hidden;
         }
         .admin-logo {
             font-family: 'Cormorant Garamond', serif;
@@ -46,6 +51,7 @@
             font-size: 0.85rem; color: rgba(255,255,255,0.85);
             border-left: 2px solid transparent;
             transition: all 0.15s; position: relative;
+            cursor: pointer;
         }
         .nav-link:hover { color: white; background: rgba(255,255,255,0.06); }
         .nav-link.active { color: white; border-left-color: white; background: rgba(255,255,255,0.08); }
@@ -320,18 +326,33 @@
         .pwa-install-close { color: rgba(255,255,255,0.4); font-size: 1.2rem; padding: 4px; }
 
         @media (max-width: 768px) {
-            .admin-sidebar { width: 60px; overflow: hidden; }
+            .admin-sidebar { width: 60px; overflow-y: auto; overflow-x: hidden; }
             .admin-sidebar .admin-logo { font-size: 1rem; padding: 0 8px 16px; letter-spacing: 0.1em; }
             .admin-sidebar .nav-link span { display: none; }
-            .admin-sidebar .nav-link { justify-content: center; padding: 14px 8px; }
-            .admin-main { margin-left: 60px; padding: 16px; padding-top: 70px; }
-            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .admin-sidebar .nav-link { justify-content: center; padding: 14px 8px; gap: 0; }
+            .admin-sidebar .nav-link svg { margin: 0; }
+            .admin-sidebar .order-badge { right: 4px; top: 4px; }
+            .admin-main { margin-left: 60px; padding: 16px 12px; padding-top: 68px; }
+            .stats-row { grid-template-columns: 1fr 1fr; gap: 8px; }
             .charts-grid { grid-template-columns: 1fr; }
             .form-row { grid-template-columns: 1fr; }
             .mobile-header { display: flex !important; }
             .settings-card { padding: 16px; }
-            table { font-size: 0.75rem; }
-            th, td { padding: 8px 6px; }
+            table { font-size: 0.72rem; display: block; overflow-x: auto; white-space: nowrap; }
+            th, td { padding: 8px 6px; white-space: nowrap; }
+            .section-title { font-size: 1.2rem; }
+            .top-bar { flex-direction: column; gap: 8px; }
+            .filter-bar { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; }
+            .filter-pill { white-space: nowrap; flex-shrink: 0; }
+            .stats-row .stat-card { padding: 12px; }
+            .stat-card .stat-val { font-size: 1.2rem; }
+            .stat-card .stat-lbl { font-size: 0.65rem; }
+            .charts-grid canvas { max-height: 200px; }
+        }
+        @media (max-width: 380px) {
+            .admin-sidebar { width: 48px; }
+            .admin-main { margin-left: 48px; padding: 12px 8px; padding-top: 64px; }
+            .stats-row { grid-template-columns: 1fr; }
         }
         select, .form-select, td .status-select, .sort-select {
             background: #1a1a1a !important;
@@ -3109,14 +3130,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Register Service Worker + subscribe to push
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').then(function(reg) {
+        navigator.serviceWorker.register('sw.js?v=' + Date.now()).then(function(reg) {
             console.log('SW registered:', reg.scope);
+            // Check for updates every 30 minutes
+            setInterval(function() { reg.update(); }, 1800000);
+            // If a new SW is waiting, activate it immediately
+            if (reg.waiting) { reg.waiting.postMessage({ type: 'SKIP_WAITING' }); }
             // Only auto-subscribe if permission already granted
             if (window.Notification && Notification.permission === 'granted') {
                 subscribeToPush();
             }
         }).catch(function(err) {
             console.log('SW registration failed:', err);
+        });
+        // When a new SW takes over, reload the page
+        navigator.serviceWorker.addEventListener('controllerchange', function() {
+            if (document.visibilityState === 'visible') {
+                window.location.reload();
+            }
         });
     }
 });

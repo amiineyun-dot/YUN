@@ -1,40 +1,24 @@
-// YUN Admin Service Worker v2
-var CACHE_NAME = 'yun-admin-v2';
-var urlsToCache = [
-  '/admin/index.html',
-  '/admin/manifest.json'
-];
+// YUN Admin Service Worker v4
 
 self.addEventListener('install', function(event) {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(function(cache) {
-      return cache.addAll(urlsToCache);
-    })
-  );
   self.skipWaiting();
 });
 
 self.addEventListener('activate', function(event) {
-  event.waitUntil(
-    caches.keys().then(function(cacheNames) {
-      return Promise.all(
-        cacheNames.map(function(cacheName) {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
-  );
-  self.clients.claim();
+  event.waitUntil(self.clients.claim());
 });
 
+// Listen for skip waiting message from page
+self.addEventListener('message', function(event) {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
+// Network first — no caching of admin pages
 self.addEventListener('fetch', function(event) {
-  event.respondWith(
-    fetch(event.request).catch(function() {
-      return caches.match(event.request);
-    })
-  );
+  if (event.request.method !== 'GET') return;
+  event.respondWith(fetch(event.request));
 });
 
 // Push notification handler
