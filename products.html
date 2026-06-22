@@ -234,6 +234,7 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_18H-x7wam3OAI--DP3Zq3Q_Lv3Pped4';
     const yunDb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
     </script>
+    <script src="yun-cache.js"></script>
     <script src="i18n.js"></script>
 </head>
 <body>
@@ -543,7 +544,9 @@ document.querySelector('.btn-drawer-checkout').addEventListener('click', functio
 }, true);
 </script>
 <script>
-yunDb.from('categories').select('*').eq('is_active', true).order('name').then(function(res) {
+YunCache.fetch('cats_active', 300000, function() {
+    return yunDb.from('categories').select('name, slug').eq('is_active', true).order('name');
+}).then(function(res) {
   var bar = document.getElementById('filterBar');
   if (!bar || !res.data || res.data.length === 0) return;
   res.data.forEach(function(c) {
@@ -566,7 +569,9 @@ function escapeHtml(s) { if (!s) return ''; return String(s).replace(/&/g,'&amp;
 document.addEventListener('DOMContentLoaded', async function() {
     // Load banner content from DB
     if (yunDb) {
-        yunDb.from('site_settings').select('key, value').in('key', ['products_page_eyebrow', 'products_page_title']).then(function(res) {
+        YunCache.fetch('products_page_settings', 300000, function() {
+            return yunDb.from('site_settings').select('key, value').in('key', ['products_page_eyebrow', 'products_page_title']);
+        }).then(function(res) {
             if (res.data) res.data.forEach(function(r) {
                 if (r.key === 'products_page_eyebrow' && r.value) document.getElementById('ppEyebrow').textContent = r.value;
                 if (r.key === 'products_page_title' && r.value) document.getElementById('ppTitle').textContent = r.value;
@@ -615,16 +620,20 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (window.__filterAndSearch) window.__filterAndSearch();
     }
 
-    // METHOD 1: Try products_with_stock view
+    // METHOD 1: Try products_with_stock view (cached)
     try {
-        var res = await yunDb.from('products_with_stock').select('*').order('name');
+        var res = await YunCache.fetch('products_all', 60000, function() {
+            return yunDb.from('products_with_stock').select('id, name, slug, category, base_price, sale_price, primary_image, total_stock').order('name');
+        });
         if (res.error) throw res.error;
         if (res.data && res.data.length > 0) { renderProducts(res.data); return; }
     } catch(e) { console.log('View failed, trying raw tables:', e.message); }
 
-    // METHOD 2: Fallback — query products + images directly
+    // METHOD 2: Fallback — query products + images (cached, specific columns)
     try {
-        var res2 = await yunDb.from('products').select('*, product_images(cloudinary_url, is_primary)').eq('is_active', true).order('name');
+        var res2 = await YunCache.fetch('products_all', 60000, function() {
+            return yunDb.from('products').select('id, name, slug, category, base_price, sale_price, product_images(cloudinary_url, is_primary)').eq('is_active', true).order('name');
+        });
         if (res2.error) throw res2.error;
         var products = (res2.data || []).map(function(p) {
             var imgs = p.product_images || [];

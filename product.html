@@ -225,6 +225,7 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_18H-x7wam3OAI--DP3Zq3Q_Lv3Pped4';
     const yunDb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
     </script>
+    <script src="yun-cache.js"></script>
     <script src="i18n.js"></script>
 </head>
 <body>
@@ -540,12 +541,22 @@
     function fmt(n){ return Number(n).toLocaleString()+' DA'; }
     function optImg(url,w){ if(!url||url.indexOf('cloudinary')===-1)return url; return url.replace('/image/upload/','/image/upload/w_'+(w||600)+',q_auto,f_auto/'); }
 
-    yunDb.from('products').select('*').eq('slug',slug).single().then(function(res){
-        if(res.error||!res.data) throw new Error('Not found');
-        var p=res.data;
-        return Promise.all([p, yunDb.from('product_images').select('*').eq('product_id',p.id).order('sort_order'), yunDb.from('product_variants').select('*').eq('product_id',p.id)]);
-    }).then(function(r){
-        var product=r[0], images=r[1].data||[], variants=r[2].data||[];
+    function yunCacheFetch(slug) {
+        return YunCache.fetch('product_' + slug, 120000, function() {
+            return yunDb.from('products').select('id, name, name_ar, slug, category, base_price, sale_price, description, description_ar, size_guide_text, size_guide_images').eq('slug', slug).single().then(function(res) {
+                if (res.error || !res.data) throw new Error('Not found');
+                var p = res.data;
+                return Promise.all([
+                    Promise.resolve(p),
+                    yunDb.from('product_images').select('cloudinary_url, is_primary').eq('product_id', p.id).order('sort_order'),
+                    yunDb.from('product_variants').select('id, size, color, color_hex, price, stock').eq('product_id', p.id).order('sort_order')
+                ]);
+            }).then(function(r) { return [r[0], r[1].data || [], r[2].data || []]; });
+        });
+    }
+
+    yunCacheFetch(slug).then(function(r){
+        var product=r[0], images=r[1], variants=r[2];
 
         // Images
         var seen={};
@@ -669,13 +680,16 @@
 
         if(typeof fbq!=='undefined') fbq('track','ViewContent',{content_ids:[product.slug],content_name:product.name,content_type:'product',value:cp,currency:'DZD'});
 
-        // Load related products (same category, excluding current)
-        yunDb.from('products').select('*').eq('category',product.category).neq('id',product.id).limit(8).then(function(res){
-            var prods=res.data||[];
-            if(!prods.length){
-                return yunDb.from('products').select('*').neq('id',product.id).limit(8);
-            }
-            return res;
+        // Load related products (cached, specific columns)
+        var relatedCacheKey = 'related_' + product.category + '_' + product.id;
+        YunCache.fetch(relatedCacheKey, 120000, function() {
+            return yunDb.from('products').select('id, name, slug, base_price, sale_price, category').eq('category',product.category).neq('id',product.id).limit(8).then(function(res) {
+                var prods = res.data || [];
+                if (!prods.length) {
+                    return yunDb.from('products').select('id, name, slug, base_price, sale_price, category').neq('id',product.id).limit(8);
+                }
+                return res;
+            });
         }).then(function(res){
             var prods=res.data||[];
             if(!prods.length)return;
