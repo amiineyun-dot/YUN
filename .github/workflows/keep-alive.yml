@@ -1,0 +1,13 @@
+name: Supabase Keep-Alive
+
+on:
+  schedule:
+    - cron: '0 */12 * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping site
+        run: curl https://www.yun-brand.com
