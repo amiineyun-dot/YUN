@@ -562,22 +562,27 @@
 
         @media (max-width: 768px) {
             .categories-grid {
-                flex-direction: column;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
                 height: auto;
             }
             .cat-large {
+                grid-column: 1 / -1;
                 flex: none;
                 width: 100%;
-                height: 200px;
+                height: 220px;
                 min-height: unset;
             }
             .cat-col-right {
-                flex: none;
-                width: 100%;
+                display: contents;
             }
             .cat-col-right .cat-card {
-                height: 160px;
+                height: 180px;
                 min-height: unset;
+            }
+            .cat-card {
+                height: 180px;
             }
         }
         /* ===== VIEW PRODUCTS BUTTON ===== */
