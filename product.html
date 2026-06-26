@@ -168,7 +168,7 @@
         @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
 
         /* Page transition */
-        #page-transition { position: fixed; inset: 0; background: #0a0a0a; z-index: 99999; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+        #page-transition { position: fixed; inset: 0; background: #0a0a0a; z-index: 99999; display: none; align-items: center; justify-content: center; pointer-events: none; }
         .pt-brand { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 300; color: white; letter-spacing: 0.4em; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
 
         /* Cart drawer */
@@ -527,6 +527,7 @@
     (function(){
         var pt=document.getElementById('page-transition');
         if(!pt)return;
+        window.addEventListener('pageshow',function(e){if(e.persisted){pt.style.transition='none';pt.style.display='none';}});
         if(sessionStorage.getItem('yun_visited')){pt.style.transition='none';pt.style.transform='translateY(0%)';pt.style.display='flex';requestAnimationFrame(function(){requestAnimationFrame(function(){pt.style.transition='transform 0.7s cubic-bezier(0.76,0,0.24,1)';pt.style.transform='translateY(100%)';setTimeout(function(){pt.style.display='none';},750);});});}else{pt.style.display='none';}
         document.addEventListener('click',function(e){var l=e.target.closest('a[href]');if(!l)return;var h=l.getAttribute('href');if(!h||h.startsWith('#')||h.startsWith('http')||h.startsWith('mailto')||h.startsWith('tel')||l.target==='_blank')return;e.preventDefault();pt.style.display='flex';pt.style.transition='none';pt.style.transform='translateY(100%)';requestAnimationFrame(function(){requestAnimationFrame(function(){pt.style.transition='transform 0.7s cubic-bezier(0.76,0,0.24,1)';pt.style.transform='translateY(0%)';setTimeout(function(){window.location.href=h;},750);});});});
     })();
