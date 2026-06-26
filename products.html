@@ -456,12 +456,13 @@
                 hiddenCards.forEach(function(c) { grid.appendChild(c); });
             });
 
-            // URL param filtering (after all vars defined)
+            // URL param filtering
             var urlParams = new URLSearchParams(window.location.search);
             var catParam = urlParams.get('category');
             if (catParam) {
+              activeFilter = catParam;
               var match = document.querySelector('.filter-pill[data-filter="' + catParam + '"]');
-              if (match) { filterBtns.forEach(function(b) { b.classList.remove('active'); }); match.classList.add('active'); activeFilter = catParam; filterAndSearch(); }
+              if (match) { filterBtns.forEach(function(b) { b.classList.remove('active'); }); match.classList.add('active'); }
             }
 
             // Expose for dynamic product loading from Supabase
@@ -556,10 +557,17 @@ YunCache.fetch('cats_active', 300000, function() {
     btn.textContent = c.name;
     bar.appendChild(btn);
   });
+  var urlP = new URLSearchParams(window.location.search);
+  var catP = urlP.get('category');
   bar.querySelectorAll('.filter-pill').forEach(function(btn) {
+    if (catP && btn.getAttribute('data-filter') === catP) {
+      bar.querySelectorAll('.filter-pill').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+    }
     btn.addEventListener('click', function() {
       bar.querySelectorAll('.filter-pill').forEach(function(b) { b.classList.remove('active'); });
-      this.classList.add('active');
+      btn.classList.add('active');
+      if (window.__filterAndSearch) window.__filterAndSearch();
     });
   });
 }).catch(function() {});
